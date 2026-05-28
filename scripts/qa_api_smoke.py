@@ -375,6 +375,11 @@ def main() -> int:
     record("CAL-14", status == 200 and isinstance(summary, dict))
     if isinstance(summary, dict):
         record("CAL-07", "driving_extras" in summary.get("month", {}))
+        record(
+            "CAL-15",
+            isinstance(summary.get("by_client_week"), list)
+            and isinstance(summary.get("by_client_month"), list),
+        )
 
     if shift_ids:
         sid = shift_ids[0]

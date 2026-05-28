@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBreakdown";
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
@@ -70,6 +71,11 @@ export function DashboardPage() {
           <StatCard label="Mes" value={formatHours(data.month.hours)} subvalue={formatMoney(data.month.estimated_money)} />
           <StatCard label="Estimado hoy" value={formatMoney(data.today.estimated_money)} />
         </div>
+
+        <ClientEarningsBreakdown
+          week={data.by_client_week ?? []}
+          month={data.by_client_month ?? []}
+        />
 
         <DrivingExtrasSummary
           today={data.today.driving_extras}
