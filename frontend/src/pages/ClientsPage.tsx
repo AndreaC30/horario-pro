@@ -6,6 +6,7 @@ import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
+import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { Modal } from "../components/ui/Modal";
 import { useClients } from "../hooks/useClients";
 import type { Client } from "../types/api";
@@ -14,6 +15,9 @@ export function ClientsPage() {
   const { clients, loading, error, refresh, add, update, remove } = useClients();
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
+  const [toDelete, setToDelete] = useState<Client | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const openCreate = () => {
     setEditing(null);
@@ -25,12 +29,23 @@ export function ClientsPage() {
     setModalOpen(true);
   };
 
-  const handleDelete = async (client: Client) => {
-    if (!window.confirm(`¿Eliminar "${client.name}"?`)) return;
+  const closeDeleteModal = () => {
+    if (deleting) return;
+    setToDelete(null);
+    setDeleteError(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!toDelete) return;
+    setDeleting(true);
+    setDeleteError(null);
     try {
-      await remove(client.id);
+      await remove(toDelete.id);
+      setToDelete(null);
     } catch (err) {
-      alert(err instanceof Error ? err.message : "No se pudo eliminar");
+      setDeleteError(err instanceof Error ? err.message : "No se pudo eliminar");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -45,9 +60,29 @@ export function ClientsPage() {
 
       {!loading && !error ? (
         <Card title="Clientes">
-          <ClientList clients={clients} onEdit={openEdit} onDelete={handleDelete} />
+          <ClientList
+            clients={clients}
+            onEdit={openEdit}
+            onDelete={(client) => {
+              setDeleteError(null);
+              setToDelete(client);
+            }}
+          />
         </Card>
       ) : null}
+
+      <ConfirmModal
+        open={Boolean(toDelete)}
+        title="Eliminar cliente"
+        confirmLabel="Eliminar"
+        loading={deleting}
+        error={deleteError}
+        onClose={closeDeleteModal}
+        onConfirm={() => void handleConfirmDelete()}
+      >
+        ¿Eliminar <strong className="text-text-primary">{toDelete?.name}</strong>? Si tiene jornadas registradas, elimínalas
+        antes desde Historial.
+      </ConfirmModal>
 
       <Modal open={modalOpen} title={editing ? "Editar cliente" : "Nuevo cliente"} onClose={() => setModalOpen(false)}>
         <ClientForm
