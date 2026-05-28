@@ -18,6 +18,7 @@ export function DashboardPage() {
   if (loading) {
     return (
       <div className="space-y-4">
+        <SkeletonBlock className="h-12" />
         <div className="grid grid-cols-2 gap-3">
           <SkeletonBlock className="h-24" />
           <SkeletonBlock className="h-24" />
@@ -33,12 +34,14 @@ export function DashboardPage() {
     return <ErrorBanner message={error ?? "Error desconocido"} onRetry={() => void refresh()} />;
   }
 
-  const isEmpty =
-    data.recent_shifts.length === 0 &&
-    Number(data.month.hours) === 0;
+  const isEmpty = data.recent_shifts.length === 0 && Number(data.month.hours) === 0;
 
   return (
     <div className="space-y-4">
+      <Link to="/jornada/nueva" className="block">
+        <Button className="w-full">+ Nueva jornada</Button>
+      </Link>
+
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="Hoy" value={formatHours(data.today.hours)} subvalue={formatMoney(data.today.estimated_money)} />
         <StatCard label="Semana" value={formatHours(data.week.hours)} subvalue={formatMoney(data.week.estimated_money)} />
@@ -52,18 +55,14 @@ export function DashboardPage() {
         month={data.month.driving_extras}
       />
 
-      <Link to="/jornada/nueva" className="block">
-        <Button className="w-full">+ Nueva jornada</Button>
-      </Link>
-
       <Card title="Últimas jornadas">
         {isEmpty ? (
           <EmptyState
             title="Aún no hay jornadas"
             description="Crea un cliente y registra tu primera jornada."
             action={
-              <Link to="/clientes">
-                <Button variant="secondary">Gestionar clientes</Button>
+              <Link to="/jornada/nueva">
+                <Button className="w-full">+ Nueva jornada</Button>
               </Link>
             }
           />

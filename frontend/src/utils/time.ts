@@ -19,11 +19,7 @@ export function fromDatetimeLocalValue(value: string): string {
 export function defaultShiftTimes(): { start: string; end: string } {
   const now = new Date();
   const start = new Date(now);
-  start.setHours(9, 0, 0, 0);
-  const end = new Date(now);
-  if (end <= start) {
-    end.setHours(17, 0, 0, 0);
-  }
+  start.setHours(start.getHours() - 8);
   return {
     start: start.toISOString(),
     end: now.toISOString(),
@@ -39,4 +35,14 @@ export function getLastClientId(): number | null {
 
 export function setLastClientId(clientId: number): void {
   localStorage.setItem(LAST_CLIENT_KEY, String(clientId));
+}
+
+export function setEndToNow(): string {
+  return toDatetimeLocalValue(new Date().toISOString());
+}
+
+export function setStartHoursAgo(hours: number): string {
+  const date = new Date();
+  date.setHours(date.getHours() - hours);
+  return toDatetimeLocalValue(date.toISOString());
 }

@@ -5,6 +5,8 @@ Lista de verificación para pruebas manuales y smoke automatizable del MVP. Comp
 **Alcance:** Login, Dashboard, CRUD jornadas (`shifts`), CRUD clientes (`clients`), cálculos, filtros, despliegue básico.  
 **Entornos:** dev (SQLite) obligatorio; staging/prod (PostgreSQL + HTTPS) antes de uso diario real.
 
+> **Ejecución 2026-05-28:** smoke API `make qa-api` → **53/53 PASS**. Detalle y pendientes UI/prod en [05-qa-ejecucion.md](./05-qa-ejecucion.md).
+
 **Convenciones**
 
 | Columna | Significado |

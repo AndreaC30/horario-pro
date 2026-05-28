@@ -20,5 +20,5 @@ Descomposición del MVP en tareas por capa. Generado a partir del pliego *Aplica
 2. Auth + bootstrap usuario único  
 3. CRUD clientes → CRUD jornadas → resúmenes dashboard  
 4. UI vistas en paralelo tras contrato API estable  
-5. PWA + despliegue VPS  
-6. QA según checklist antes de uso diario real  
+5. PWA + despliegue VPS — **código FE-060–063 en repo**; despliegue VPS según `deploy/`  
+6. QA según checklist (`05-qa-checklist.md`) — **API automatizada OK**; UI/prod manual en [05-qa-ejecucion.md](./05-qa-ejecucion.md)  

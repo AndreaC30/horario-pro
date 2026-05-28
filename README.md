@@ -1,6 +1,6 @@
 # horario-pro
 
-Aplicación web responsive/PWA para registrar jornadas laborales, horas y extras (conducción, desplazamientos).
+Aplicación web **PWA instalable** para registrar jornadas laborales, horas y extras (conducción, desplazamientos).
 
 ## Arranque (recomendado)
 
@@ -46,6 +46,26 @@ Ver [`deploy/nginx-proxy/README.md`](deploy/nginx-proxy/README.md).
 make dev-backend   # terminal 1
 make dev-frontend  # terminal 2 — solo si no usas Docker para la UI
 ```
+
+## PWA
+
+Tras `docker compose up` o `npm run build` en `frontend/`:
+
+- Manifest + service worker (`vite-plugin-pwa`).
+- Instalar: en móvil, «Añadir a pantalla de inicio» / «Instalar app».
+- Sin red: lectura cacheada limitada; **guardar** requiere conexión.
+
+Detalle: [`frontend/README.md`](frontend/README.md).
+
+## Estado del pliego (antes de QA)
+
+| Fase | Documento | Estado en repo |
+|------|-----------|----------------|
+| Backend MVP | `01-backend-tareas.md` | Implementado |
+| Frontend 1–6 + UX | `02-frontend`, `04-ux` | Implementado |
+| PWA + entrega FE | `02` fases 7–8 | Implementado (FE-071 tests opcional omitido) |
+| Infra Docker/nginx | `03-infra-tareas.md` | Compose + proxy; VPS/backups = operación en servidor |
+| QA | `05-qa-checklist.md` | API: `make qa-api` · UI/prod: [05-qa-ejecucion.md](docs/pliego/05-qa-ejecucion.md) |
 
 ## Documentación
 

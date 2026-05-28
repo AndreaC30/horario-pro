@@ -8,23 +8,53 @@ type ClientSelectProps = {
   value: number | "";
   onChange: (clientId: number) => void;
   error?: string;
+  onNewClient?: () => void;
 };
 
-export function ClientSelect({ clients, value, onChange, error }: ClientSelectProps) {
+export function ClientSelect({ clients, value, onChange, error, onNewClient }: ClientSelectProps) {
   if (clients.length === 0) {
     return (
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
-        <p>No hay clientes.</p>
-        <Link to="/clientes" className="font-semibold text-primary underline">
-          Crear cliente
-        </Link>
+        <p>Crea tu primer cliente antes de registrar una jornada.</p>
+        {onNewClient ? (
+          <button type="button" className="mt-2 font-semibold text-primary underline" onClick={onNewClient}>
+            + Nuevo cliente
+          </button>
+        ) : (
+          <Link to="/clientes" className="mt-2 inline-block font-semibold text-primary underline">
+            Crear cliente
+          </Link>
+        )}
       </div>
     );
   }
 
+  const selected = clients.find((client) => client.id === value);
+
   return (
-    <div>
-      <Label htmlFor="client_id">Cliente / lugar</Label>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <Label htmlFor="client_id">Cliente / lugar</Label>
+        {onNewClient ? (
+          <button
+            type="button"
+            className="min-h-touch text-sm font-semibold text-primary"
+            onClick={onNewClient}
+          >
+            + Nuevo cliente
+          </button>
+        ) : null}
+      </div>
+      {selected ? (
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <span
+            className="h-4 w-4 shrink-0 rounded-full border border-slate-200"
+            style={{ backgroundColor: selected.color }}
+            aria-hidden
+          />
+          <span className="truncate font-medium text-slate-800">{selected.name}</span>
+        </div>
+      ) : null}
       <select
         id="client_id"
         className={`min-h-touch w-full rounded-xl border px-3 py-2 text-base ${
@@ -43,7 +73,7 @@ export function ClientSelect({ clients, value, onChange, error }: ClientSelectPr
           </option>
         ))}
       </select>
-      {error ? <p className="mt-1 text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-red-600">{error}</p> : null}
     </div>
   );
 }

@@ -6,7 +6,9 @@ import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Label } from "../components/ui/Label";
 import { useAuth } from "../hooks/useAuth";
+import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import { ApiError } from "../services/apiClient";
+import { OFFLINE_MESSAGE } from "../utils/network";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -15,6 +17,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const online = useOnlineStatus();
 
   if (!isLoading && isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -30,11 +33,13 @@ export function LoginPage() {
       navigate("/dashboard", { replace: true });
     } catch (err) {
       const message =
-        err instanceof ApiError
-          ? err.message
-          : err instanceof Error
+        err instanceof ApiError && err.status === 401
+          ? "Email o contraseña incorrectos"
+          : err instanceof ApiError
             ? err.message
-            : "No se pudo iniciar sesión";
+            : err instanceof Error
+              ? err.message
+              : "No se pudo iniciar sesión";
       setError(message);
     } finally {
       setSubmitting(false);
@@ -68,8 +73,9 @@ export function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          {!online ? <p className="text-sm text-amber-800">{OFFLINE_MESSAGE}</p> : null}
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button type="submit" className="w-full" loading={submitting}>
+          <Button type="submit" className="w-full" loading={submitting} disabled={!online}>
             Entrar
           </Button>
         </form>

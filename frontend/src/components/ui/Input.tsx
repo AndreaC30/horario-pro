@@ -9,7 +9,7 @@ export function Input({ className = "", error, id, ...props }: InputProps) {
     <div className="w-full">
       <input
         id={id}
-        className={`min-h-touch w-full rounded-xl border px-3 py-2 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+        className={`min-h-touch w-full rounded-xl border px-3 py-2 text-base outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20 [font-size:16px] ${
           error ? "border-red-500" : "border-slate-300"
         } ${className}`}
         {...props}
