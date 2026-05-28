@@ -40,3 +40,16 @@ coverage/
 # Misc
 *.pem
 .cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Alembic / local DB
+backend/horariopro.db

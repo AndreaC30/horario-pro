@@ -1,0 +1,69 @@
+# Stack base para VPS (Nginx ya instalado en el host).
+# Producción: docker compose --profile postgres up -d --build
+services:
+  horario-backend:
+    build:
+      context: ./backend
+    container_name: horario-backend
+    restart: unless-stopped
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-production}
+      DEBUG: ${DEBUG:-false}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://horario_app:change-me@horario-db:5432/horario_pro}
+      SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-10080}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:8080}
+    expose:
+      - "8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      - horario-internal
+
+  horario-frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DEV_BYPASS_AUTH: "false"
+    container_name: horario-frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    depends_on:
+      horario-backend:
+        condition: service_healthy
+    networks:
+      - horario-internal
+
+  horario-db:
+    profiles:
+      - postgres
+    image: postgres:16-alpine
+    container_name: horario-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-horario_pro}
+      POSTGRES_USER: ${POSTGRES_USER:-horario_app}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - horario_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-horario_app} -d ${POSTGRES_DB:-horario_pro}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - horario-internal
+
+networks:
+  horario-internal:
+    driver: bridge
+
+volumes:
+  horario_pg_data:
+  horario_sqlite_data:
