@@ -8,8 +8,10 @@ type AuthStatus = "loading" | "authenticated" | "unauthenticated";
 export function useAuth() {
   const [status, setStatus] = useState<AuthStatus>("loading");
 
+  const bypassAuth = import.meta.env.VITE_DEV_BYPASS_AUTH === "true";
+
   const bootstrap = useCallback(async () => {
-    if (import.meta.env.DEV) {
+    if (bypassAuth) {
       setStatus("authenticated");
       return;
     }
@@ -27,16 +29,24 @@ export function useAuth() {
       clearToken();
       setStatus("unauthenticated");
     }
-  }, []);
+  }, [bypassAuth]);
 
   useEffect(() => {
     void bootstrap();
   }, [bootstrap]);
 
-  const login = useCallback(async (_email: string, _password: string) => {
-    setStatus("unauthenticated");
-    throw new Error("Login disponible en la fase 1 (auth API)");
-  }, []);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const data = await apiRequest<{ access_token: string }>("/api/v1/auth/login", {
+        method: "POST",
+        skipAuth: true,
+        body: JSON.stringify({ email, password }),
+      });
+      setToken(data.access_token);
+      setStatus("authenticated");
+    },
+    [],
+  );
 
   const logout = useCallback(() => {
     clearToken();

@@ -48,11 +48,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
   const payload = contentType?.includes("application/json") ? await response.json() : null;
 
   if (!response.ok) {
-    const detail =
-      payload && typeof payload === "object" && "detail" in payload
-        ? String((payload as { detail: unknown }).detail)
-        : response.statusText;
-    throw new ApiError(detail || "Error de API", response.status, payload);
+    let message = response.statusText;
+    if (payload && typeof payload === "object" && "detail" in payload) {
+      const detail = (payload as { detail: unknown }).detail;
+      message = typeof detail === "string" ? detail : JSON.stringify(detail);
+    }
+    throw new ApiError(message || "Error de API", response.status, payload);
   }
 
   return payload as T;

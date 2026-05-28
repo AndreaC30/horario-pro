@@ -11,7 +11,7 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.core.logging_config import setup_logging
-from app.routers import health
+from app.routers import auth, health
 
 settings = get_settings()
 setup_logging(debug=settings.debug)
@@ -37,8 +37,23 @@ app.add_exception_handler(Exception, unhandled_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 app.include_router(health.router)
+app.include_router(auth.router)
 
 
 @app.on_event("startup")
 def on_startup() -> None:
+    from app.db.session import SessionLocal
+    from app.services import auth_service
+
+    if settings.bootstrap_user_email and settings.bootstrap_user_password:
+        db = SessionLocal()
+        try:
+            auth_service.bootstrap_user_if_missing(
+                db,
+                settings.bootstrap_user_email,
+                settings.bootstrap_user_password,
+            )
+        finally:
+            db.close()
+
     logger.info("HorarioPro API started (env=%s)", settings.environment)

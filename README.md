@@ -1,53 +1,52 @@
 # horario-pro
 
-Aplicación web responsive/PWA que permite a un trabajador registrar rápidamente jornadas laborales, horas trabajadas y extras asociados al trabajo (como conducción o desplazamientos).
+Aplicación web responsive/PWA para registrar jornadas laborales, horas y extras (conducción, desplazamientos).
 
-## Estado del proyecto
+## Arranque (recomendado)
 
-- **Fase 0** — Esqueleto backend (FastAPI), frontend (React/Vite/Tailwind), Docker Compose y migración inicial de BD.
-- Documentación de planificación: [`docs/pliego/`](docs/pliego/).
-
-## Arranque rápido
-
-### Docker (pruebas locales)
+Un solo comando desde la raíz del repo:
 
 ```bash
 cp .env.example .env
-docker compose up --build
+# Edita .env: SECRET_KEY, BOOTSTRAP_USER_EMAIL, BOOTSTRAP_USER_PASSWORD
+docker compose up -d --build
 ```
 
 | Servicio | URL |
 |----------|-----|
-| API health | http://localhost:8000/health |
-| SPA | http://localhost:8080 |
+| App (login) | http://localhost:8080 |
+| API + Swagger | http://localhost:8000/docs |
+| Health | http://localhost:8000/health |
 
-`docker-compose.override.yml` publica puertos y usa SQLite (sin PostgreSQL).
+Logs: `make docker-logs` · Parar: `make docker-down`
 
-### Desarrollo nativo
+`docker-compose.override.yml` aplica SQLite, puertos locales y creación del usuario bootstrap.
+
+## Variables `.env` imprescindibles
+
+```env
+SECRET_KEY="..."                    # openssl rand -base64 32
+BOOTSTRAP_USER_EMAIL=tu@email.com
+BOOTSTRAP_USER_PASSWORD=...
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+## VPS (Nginx en el host)
 
 ```bash
-# Terminal 1 — API
-cd backend && python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt && cp .env.example .env
-alembic upgrade head && uvicorn app.main:app --reload --port 8000
-
-# Terminal 2 — UI
-cd frontend && npm install && cp .env.example .env && npm run dev
+docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile postgres up -d --build
 ```
 
-Atajos: `make dev-backend`, `make dev-frontend`, `make docker-up`.
+Ver [`deploy/README.md`](deploy/README.md).
 
-## Estructura
+## Desarrollo nativo (opcional)
 
-```
-backend/     # FastAPI, SQLAlchemy, Alembic
-frontend/    # React, Vite, Tailwind
-deploy/      # Notas Nginx / VPS
-docs/        # Pliego y mejoras v2
+```bash
+make dev-backend   # terminal 1
+make dev-frontend  # terminal 2 — solo si no usas Docker para la UI
 ```
 
-## VPS
+## Documentación
 
-Nginx en el host (no en Compose). Ver [`deploy/README.md`](deploy/README.md).
-
-Producción con Postgres: `docker compose --profile postgres up -d --build`
+- Planificación: [`docs/pliego/`](docs/pliego/)
+- Mejoras v2: [`docs/MEJORAS-V2.md`](docs/MEJORAS-V2.md)

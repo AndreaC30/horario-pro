@@ -10,6 +10,8 @@ services:
       DEBUG: "true"
       DATABASE_URL: sqlite:////data/horariopro.db
       CORS_ORIGINS: http://localhost:5173,http://localhost:8080,http://127.0.0.1:8080
+      BOOTSTRAP_USER_EMAIL: ${BOOTSTRAP_USER_EMAIL:-}
+      BOOTSTRAP_USER_PASSWORD: ${BOOTSTRAP_USER_PASSWORD:-}
     volumes:
       - horario_sqlite_data:/data
     depends_on: {}
@@ -20,4 +22,4 @@ services:
     build:
       args:
         VITE_API_BASE_URL: http://localhost:8000
-        VITE_DEV_BYPASS_AUTH: "true"
+        VITE_DEV_BYPASS_AUTH: "false"

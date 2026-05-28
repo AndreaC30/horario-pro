@@ -2,34 +2,53 @@
 
 API REST con FastAPI, SQLAlchemy y Alembic.
 
-## Requisitos
+## Arranque recomendado (Docker, desde la raíz del repo)
 
-- Python 3.12+
-- SQLite (desarrollo) o PostgreSQL (producción)
+```bash
+# En .env define BOOTSTRAP_USER_EMAIL y BOOTSTRAP_USER_PASSWORD
+docker compose up -d --build
+```
 
-## Arranque local (sin Docker)
+API: http://localhost:8000/docs · Health: http://localhost:8000/health
+
+## Primer usuario (MVP)
+
+Sin registro público. Opciones:
+
+1. **Variables en `.env`** (recomendado con Docker):
+   ```env
+   BOOTSTRAP_USER_EMAIL=tu@email.com
+   BOOTSTRAP_USER_PASSWORD=tu-contraseña
+   ```
+   Se crea al arrancar el contenedor si no existe.
+
+2. **CLI manual**:
+   ```bash
+   cd backend
+   .venv/bin/python -m app.cli create-user --email tu@email.com --password tu-contraseña
+   ```
+   Falla si el email ya existe (idempotente con `bootstrap-user`).
+
+## Auth (fase 1)
+
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| POST | `/api/v1/auth/login` | Email + password → JWT |
+| GET | `/api/v1/auth/me` | Usuario autenticado (Bearer) |
+
+## Desarrollo local (opcional)
 
 ```bash
 cd backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-alembic upgrade head
-uvicorn app.main:app --reload --port 8000
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+.venv/bin/alembic upgrade head
+.venv/bin/uvicorn app.main:app --reload --port 8000
 ```
 
-- API: http://localhost:8000
-- Health: http://localhost:8000/health
-- OpenAPI (con `DEBUG=true`): http://localhost:8000/docs
+Usa el `.env` de la raíz del monorepo o `backend/.env`.
 
 ## Migraciones
 
 ```bash
-alembic upgrade head
-alembic revision -m "descripcion" --autogenerate
+.venv/bin/alembic upgrade head
 ```
-
-## Variables de entorno
-
-Ver `.env.example`.

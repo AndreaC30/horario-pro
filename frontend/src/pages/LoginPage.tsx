@@ -1,15 +1,16 @@
 import { FormEvent, useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Label } from "../components/ui/Label";
 import { useAuth } from "../hooks/useAuth";
-import { apiRequest } from "../services/apiClient";
+import { ApiError } from "../services/apiClient";
 
 export function LoginPage() {
-  const { isAuthenticated, isLoading, persistToken } = useAuth();
+  const navigate = useNavigate();
+  const { isAuthenticated, isLoading, login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -25,14 +26,16 @@ export function LoginPage() {
     setSubmitting(true);
 
     try {
-      const data = await apiRequest<{ access_token: string }>("/api/v1/auth/login", {
-        method: "POST",
-        skipAuth: true,
-        body: JSON.stringify({ email, password }),
-      });
-      persistToken(data.access_token);
+      await login(email, password);
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "No se pudo iniciar sesión");
+      const message =
+        err instanceof ApiError
+          ? err.message
+          : err instanceof Error
+            ? err.message
+            : "No se pudo iniciar sesión";
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -70,7 +73,6 @@ export function LoginPage() {
             Entrar
           </Button>
         </form>
-        <p className="mt-4 text-xs text-slate-500">Login completo en fase 1 (JWT). En `npm run dev` el acceso está abierto para pruebas.</p>
       </Card>
     </div>
   );
