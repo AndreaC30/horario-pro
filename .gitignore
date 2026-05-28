@@ -36,7 +36,24 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/node_modules/playwright-core/.local-browsers/
 
 # Misc
 *.pem
 .cache/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Alembic / local DB
+backend/horariopro.db

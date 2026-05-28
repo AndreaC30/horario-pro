@@ -1,0 +1,30 @@
+# VPS: PostgreSQL + red compartida con nginx-proxy (gastodehoy_backend).
+# El proxy en ~/nginx-proxy alcanza horario-backend / horario-frontend por nombre.
+# Uso: docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile postgres up -d --build
+services:
+  horario-backend:
+    environment:
+      ENVIRONMENT: production
+      DEBUG: "false"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-horario_app}:${POSTGRES_PASSWORD:-change-me}@horario-db:5432/${POSTGRES_DB:-horario_pro}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://localhost}
+    networks:
+      - horario-internal
+      - proxy-backend
+    depends_on:
+      horario-db:
+        condition: service_healthy
+
+  horario-frontend:
+    build:
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-/api}
+        VITE_DEV_BYPASS_AUTH: "false"
+    networks:
+      - horario-internal
+      - proxy-backend
+
+networks:
+  proxy-backend:
+    external: true
+    name: ${DOCKER_PROXY_NETWORK:-gastodehoy_backend}

@@ -1,0 +1,25 @@
+# Despliegue local / pruebas (se fusiona automáticamente con docker compose up).
+# No incluye Nginx: puertos publicados para probar API y SPA.
+# SQLite en volumen; PostgreSQL desactivado (perfil postgres no activo).
+services:
+  horario-backend:
+    ports:
+      - "8000:8000"
+    environment:
+      ENVIRONMENT: development
+      DEBUG: "true"
+      DATABASE_URL: sqlite:////data/horariopro.db
+      CORS_ORIGINS: http://localhost:5173,http://localhost:8080,http://127.0.0.1:8080
+      BOOTSTRAP_USER_EMAIL: ${BOOTSTRAP_USER_EMAIL:-}
+      BOOTSTRAP_USER_PASSWORD: ${BOOTSTRAP_USER_PASSWORD:-}
+    volumes:
+      - horario_sqlite_data:/data
+    depends_on: {}
+
+  horario-frontend:
+    ports:
+      - "8080:80"
+    build:
+      args:
+        VITE_API_BASE_URL: http://localhost:8000
+        VITE_DEV_BYPASS_AUTH: "false"
