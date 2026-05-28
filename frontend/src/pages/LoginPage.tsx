@@ -49,8 +49,8 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-app flex-col justify-center px-4 py-8">
-      <div className="mb-8">
-        <BrandLogo size="lg" />
+      <div className="mb-10 flex w-full justify-center">
+        <BrandLogo size="xl" showText={false} />
       </div>
       <Card>
         <p className="mb-5 text-sm text-text-secondary">Inicia sesión para registrar tus jornadas.</p>
