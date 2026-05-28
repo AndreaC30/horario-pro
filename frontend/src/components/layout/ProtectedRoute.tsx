@@ -3,6 +3,20 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { AppShell } from "./AppShell";
 
+const titles: Record<string, string> = {
+  "/dashboard": "Inicio",
+  "/historial": "Historial",
+  "/clientes": "Clientes",
+  "/jornada/nueva": "Nueva jornada",
+};
+
+function resolveTitle(pathname: string): string {
+  if (pathname.startsWith("/jornada/") && pathname !== "/jornada/nueva") {
+    return "Editar jornada";
+  }
+  return titles[pathname] ?? "HorarioPro";
+}
+
 export function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -22,7 +36,7 @@ export function ProtectedRoute() {
   }
 
   return (
-    <AppShell title="HorarioPro">
+    <AppShell title={resolveTitle(location.pathname)}>
       <Outlet />
     </AppShell>
   );

@@ -29,12 +29,15 @@ Sin registro público. Opciones:
    ```
    Falla si el email ya existe (idempotente con `bootstrap-user`).
 
-## Auth (fase 1)
+## API (MVP)
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | POST | `/api/v1/auth/login` | Email + password → JWT |
-| GET | `/api/v1/auth/me` | Usuario autenticado (Bearer) |
+| GET | `/api/v1/auth/me` | Usuario autenticado |
+| CRUD | `/api/v1/clients` | Clientes del usuario |
+| CRUD | `/api/v1/shifts` | Jornadas (`?from=&to=&client_id=`) |
+| GET | `/api/v1/dashboard/summary` | KPIs + últimas jornadas |
 
 ## Desarrollo local (opcional)
 

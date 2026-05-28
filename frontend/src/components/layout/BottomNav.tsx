@@ -21,6 +21,9 @@ export function BottomNav() {
         <NavLink to="/historial" className={linkClass}>
           Historial
         </NavLink>
+        <NavLink to="/clientes" className={linkClass}>
+          Clientes
+        </NavLink>
       </div>
     </nav>
   );

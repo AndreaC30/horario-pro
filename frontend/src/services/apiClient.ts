@@ -44,6 +44,10 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   const contentType = response.headers.get("content-type");
   const payload = contentType?.includes("application/json") ? await response.json() : null;
 

@@ -11,7 +11,7 @@ from app.core.exceptions import (
     validation_exception_handler,
 )
 from app.core.logging_config import setup_logging
-from app.routers import auth, health
+from app.routers import auth, clients, dashboard, health, shifts
 
 settings = get_settings()
 setup_logging(debug=settings.debug)
@@ -38,6 +38,9 @@ app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 app.include_router(health.router)
 app.include_router(auth.router)
+app.include_router(clients.router)
+app.include_router(shifts.router)
+app.include_router(dashboard.router)
 
 
 @app.on_event("startup")

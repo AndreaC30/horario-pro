@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { DashboardPage } from "./pages/DashboardPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { LoginPage } from "./pages/LoginPage";
+import { ClientsPage } from "./pages/ClientsPage";
 import { ShiftFormPage } from "./pages/ShiftFormPage";
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="/jornada/nueva" element={<ShiftFormPage />} />
         <Route path="/jornada/:id" element={<ShiftFormPage />} />
         <Route path="/historial" element={<HistoryPage />} />
+        <Route path="/clientes" element={<ClientsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
