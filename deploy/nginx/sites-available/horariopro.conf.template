@@ -1,0 +1,64 @@
+# HorarioPro — Nginx en el HOST (no en Docker)
+# Renderizar: deploy/scripts/render-nginx-config.sh
+# Upstreams: Docker publica solo en 127.0.0.1 (ver docker-compose.prod.yml)
+
+upstream horario_frontend {
+    server 127.0.0.1:8080;
+    keepalive 8;
+}
+
+upstream horario_backend {
+    server 127.0.0.1:8000;
+    keepalive 8;
+}
+
+# HTTP → HTTPS + ACME (Let's Encrypt)
+server {
+    listen 80;
+    listen [::]:80;
+    server_name __DOMAIN__;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
+    server_name __DOMAIN__;
+
+    # Certbot (INF-302) — rutas tras certbot certonly --nginx
+    ssl_certificate     /etc/letsencrypt/live/__DOMAIN__/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/__DOMAIN__/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    client_max_body_size 1m;
+
+    include /etc/nginx/snippets/horariopro-security-headers.conf;
+
+    # SPA (INF-301)
+    location / {
+        proxy_pass http://horario_frontend;
+        include /etc/nginx/snippets/horariopro-proxy-params.conf;
+    }
+
+    # API REST — prefijo /api conservado (VITE_API_BASE_URL=/api)
+    location /api/ {
+        limit_req zone=horario_api burst=20 nodelay;
+        proxy_pass http://horario_backend/api/;
+        include /etc/nginx/snippets/horariopro-proxy-params.conf;
+    }
+
+    # Healthcheck externo (monitorización)
+    location = /health {
+        proxy_pass http://horario_backend/health;
+        include /etc/nginx/snippets/horariopro-proxy-params.conf;
+        access_log off;
+    }
+}

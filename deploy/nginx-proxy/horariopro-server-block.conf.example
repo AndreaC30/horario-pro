@@ -1,0 +1,71 @@
+# Copiar al final de /root/nginx-proxy/nginx/conf.d/default.conf
+# (antes del bloque HTTP→HTTPS global), y añadir el server_name al redirect.
+# Dominio: workshift.andreacruz.es
+# Contenedores en red gastodehoy_backend (ver docker-compose.prod.yml).
+
+# ============================================
+# HORARIOPRO
+# ============================================
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name workshift.andreacruz.es;
+
+    ssl_certificate     /etc/letsencrypt/live/workshift.andreacruz.es/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/workshift.andreacruz.es/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/workshift.andreacruz.es/chain.pem;
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+    ssl_stapling on;
+    ssl_stapling_verify on;
+    resolver 1.1.1.1 8.8.8.8 valid=300s;
+    resolver_timeout 5s;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()" always;
+
+    gzip on;
+    gzip_vary on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml text/javascript image/svg+xml;
+
+    client_max_body_size 1m;
+
+    # API (build frontend con VITE_API_BASE_URL=/api)
+    location /api/ {
+        # Opcional: descomentar tras añadir limit_req_zone en nginx.conf (ver rate-limit-snippet.conf.example)
+        # limit_req zone=horario_api burst=20 nodelay;
+        proxy_pass http://horario-backend:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 30s;
+        proxy_send_timeout 60s;
+        proxy_read_timeout 60s;
+    }
+
+    location = /health {
+        proxy_pass http://horario-backend:8000/health;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        access_log off;
+    }
+
+    # SPA (contenedor horario-frontend, nginx interno :80)
+    location / {
+        proxy_pass http://horario-frontend;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

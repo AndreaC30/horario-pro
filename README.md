@@ -31,13 +31,14 @@ BOOTSTRAP_USER_PASSWORD=...
 VITE_API_BASE_URL=http://localhost:8000
 ```
 
-## VPS (Nginx en el host)
+## VPS (nginx-proxy centralizado)
 
 ```bash
-docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile postgres up -d --build
+make docker-prod
+# Bloque server en ~/nginx-proxy/nginx/conf.d/default.conf
 ```
 
-Ver [`deploy/README.md`](deploy/README.md).
+Ver [`deploy/nginx-proxy/README.md`](deploy/nginx-proxy/README.md).
 
 ## Desarrollo nativo (opcional)
 
