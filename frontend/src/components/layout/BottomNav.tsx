@@ -1,4 +1,13 @@
 import { NavLink } from "react-router-dom";
+import { IoCalendarOutline, IoHomeOutline, IoPeopleOutline, IoTimeOutline } from "react-icons/io5";
+import type { IconType } from "react-icons";
+
+const tabs: { to: string; label: string; Icon: IconType }[] = [
+  { to: "/dashboard", label: "Inicio", Icon: IoHomeOutline },
+  { to: "/jornada/nueva", label: "Jornada", Icon: IoTimeOutline },
+  { to: "/historial", label: "Historial", Icon: IoCalendarOutline },
+  { to: "/clientes", label: "Clientes", Icon: IoPeopleOutline },
+];
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `flex min-h-touch min-w-touch flex-1 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors ${
@@ -12,18 +21,12 @@ export function BottomNav() {
       aria-label="Navegación principal"
     >
       <div className="mx-auto flex max-w-app">
-        <NavLink to="/dashboard" className={linkClass}>
-          Inicio
-        </NavLink>
-        <NavLink to="/jornada/nueva" className={linkClass}>
-          Jornada
-        </NavLink>
-        <NavLink to="/historial" className={linkClass}>
-          Historial
-        </NavLink>
-        <NavLink to="/clientes" className={linkClass}>
-          Clientes
-        </NavLink>
+        {tabs.map(({ to, label, Icon }) => (
+          <NavLink key={to} to={to} className={linkClass}>
+            <Icon className="h-5 w-5" aria-hidden />
+            {label}
+          </NavLink>
+        ))}
       </div>
     </nav>
   );

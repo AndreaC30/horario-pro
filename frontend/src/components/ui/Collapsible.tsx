@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from "react";
+import { IoAdd, IoRemove } from "react-icons/io5";
 
 type CollapsibleProps = {
   label: string;
@@ -18,7 +19,9 @@ export function Collapsible({ label, children, defaultOpen = false }: Collapsibl
         aria-expanded={open}
       >
         {label}
-        <span className="text-text-secondary">{open ? "−" : "+"}</span>
+        <span className="text-text-secondary" aria-hidden>
+          {open ? <IoRemove className="h-5 w-5" /> : <IoAdd className="h-5 w-5" />}
+        </span>
       </button>
       {open ? <div className="space-y-3 border-t border-border px-3 py-3">{children}</div> : null}
     </div>

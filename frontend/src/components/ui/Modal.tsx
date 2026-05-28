@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { IoClose } from "react-icons/io5";
+
 import { Button } from "./Button";
 
 type ModalProps = {
@@ -27,7 +29,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
             {title}
           </h2>
           <Button variant="ghost" onClick={onClose} aria-label="Cerrar">
-            ✕
+            <IoClose className="h-5 w-5" aria-hidden />
           </Button>
         </div>
         {children}

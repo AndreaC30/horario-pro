@@ -20,7 +20,7 @@ npm ci
 npm run dev          # http://localhost:5173 (PWA dev habilitada)
 npm run build        # dist/ + service worker
 npm run preview      # previsualizar build
-npm run icons        # regenerar PNG desde public/icon.svg (requiere sharp)
+npm run icons        # regenerar PNG desde public/icon-source.png (requiere sharp)
 ```
 
 ## PWA (FE-060–063)
