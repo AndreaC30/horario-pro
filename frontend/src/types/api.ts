@@ -26,10 +26,23 @@ export type PeriodSummary = {
   driving_extras: string;
 };
 
+export type ClientPeriodSummary = {
+  client_id: number;
+  client_name: string;
+  client_color: string;
+  hourly_rate: string | null;
+  hours: string;
+  estimated_money: string;
+  driving_extras: string;
+  shift_count: number;
+};
+
 export type DashboardSummary = {
   today: PeriodSummary;
   week: PeriodSummary;
   month: PeriodSummary;
+  by_client_week: ClientPeriodSummary[];
+  by_client_month: ClientPeriodSummary[];
   recent_shifts: Shift[];
 };
 

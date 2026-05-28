@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from app.models.shift import Shift
-from app.schemas.dashboard import DashboardSummary, PeriodSummary
+from app.schemas.dashboard import ClientPeriodSummary, DashboardSummary, PeriodSummary
 from app.services.shift_service import _to_shift_read
 from app.utils.calculations import estimated_pay, worked_hours
 
@@ -52,6 +52,32 @@ def _aggregate_shifts(shifts: list[Shift]) -> PeriodSummary:
     )
 
 
+def _aggregate_by_client(shifts: list[Shift]) -> list[ClientPeriodSummary]:
+    by_client: dict[int, list[Shift]] = {}
+    for shift in shifts:
+        by_client.setdefault(shift.client_id, []).append(shift)
+
+    rows: list[ClientPeriodSummary] = []
+    for client_shifts in by_client.values():
+        client = client_shifts[0].client
+        totals = _aggregate_shifts(client_shifts)
+        rows.append(
+            ClientPeriodSummary(
+                client_id=client.id,
+                client_name=client.name,
+                client_color=client.color,
+                hourly_rate=client.hourly_rate,
+                hours=totals.hours,
+                estimated_money=totals.estimated_money,
+                driving_extras=totals.driving_extras,
+                shift_count=len(client_shifts),
+            ),
+        )
+
+    rows.sort(key=lambda row: (row.estimated_money, row.hours), reverse=True)
+    return rows
+
+
 def get_summary(db: Session, user_id: int, recent_limit: int = 5) -> DashboardSummary:
     now = datetime.now(TZ)
     start_today, start_week, start_month, end_today = _bounds(now)
@@ -73,5 +99,7 @@ def get_summary(db: Session, user_id: int, recent_limit: int = 5) -> DashboardSu
         today=_aggregate_shifts(today_shifts),
         week=_aggregate_shifts(week_shifts),
         month=_aggregate_shifts(month_shifts),
+        by_client_week=_aggregate_by_client(week_shifts),
+        by_client_month=_aggregate_by_client(month_shifts),
         recent_shifts=[_to_shift_read(s) for s in all_shifts[:recent_limit]],
     )
