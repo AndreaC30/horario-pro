@@ -36,6 +36,10 @@ yarn-error.log*
 # Testing
 coverage/
 .nyc_output/
+frontend/test-results/
+frontend/playwright-report/
+frontend/blob-report/
+frontend/node_modules/playwright-core/.local-browsers/
 
 # Misc
 *.pem

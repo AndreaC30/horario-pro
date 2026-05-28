@@ -7,10 +7,10 @@ type ErrorBannerProps = {
 
 export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+    <div className="rounded-xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-danger">
       <p>{message}</p>
       {onRetry ? (
-        <Button variant="ghost" type="button" className="mt-2 text-red-800" onClick={onRetry}>
+        <Button variant="ghost" type="button" className="mt-2 text-danger" onClick={onRetry}>
           Reintentar
         </Button>
       ) : null}

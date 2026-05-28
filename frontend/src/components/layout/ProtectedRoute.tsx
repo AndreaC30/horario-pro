@@ -14,7 +14,7 @@ function resolveTitle(pathname: string): string {
   if (pathname.startsWith("/jornada/") && pathname !== "/jornada/nueva") {
     return "Editar jornada";
   }
-  return titles[pathname] ?? "HorarioPro";
+  return titles[pathname] ?? "WorkShift";
 }
 
 export function ProtectedRoute() {
@@ -23,8 +23,8 @@ export function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-surface">
-        <p className="text-sm text-slate-600">Cargando sesión…</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-sm text-text-secondary">Cargando sesión…</p>
       </div>
     );
   }

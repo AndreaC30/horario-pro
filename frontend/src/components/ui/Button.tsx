@@ -1,6 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonVariant = "primary" | "secondary" | "ghost";
+type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
@@ -9,9 +9,12 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-primary text-primary-foreground hover:bg-blue-700",
-  secondary: "bg-slate-200 text-slate-900 hover:bg-slate-300",
-  ghost: "bg-transparent text-slate-700 hover:bg-slate-100",
+  primary:
+    "bg-primary text-primary-foreground shadow-glass hover:bg-primary-hover hover:-translate-y-px active:translate-y-0",
+  secondary:
+    "border border-border bg-white/[0.04] text-text-primary hover:border-white/20 hover:bg-white/[0.06]",
+  ghost: "bg-transparent text-text-secondary hover:bg-white/[0.06] hover:text-text-primary",
+  danger: "bg-danger/90 text-white hover:bg-danger",
 };
 
 export function Button({
@@ -26,7 +29,7 @@ export function Button({
     <button
       type="button"
       disabled={disabled || loading}
-      className={`inline-flex min-h-touch min-w-touch items-center justify-center rounded-xl px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-60 ${variantClasses[variant]} ${className}`}
+      className={`inline-flex min-h-touch min-w-touch items-center justify-center rounded-[14px] px-[18px] py-3.5 text-sm font-semibold transition duration-200 ease-out disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {loading ? "Cargando…" : children}

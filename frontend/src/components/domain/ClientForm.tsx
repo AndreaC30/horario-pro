@@ -16,7 +16,7 @@ type ClientFormProps = {
 
 export function ClientForm({ initial, onSubmit, onCancel }: ClientFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [color, setColor] = useState(initial?.color ?? "#2563eb");
+  const [color, setColor] = useState(initial?.color ?? "#7C5CFF");
   const [hourlyRate, setHourlyRate] = useState(initial?.hourly_rate ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -61,8 +61,8 @@ export function ClientForm({ initial, onSubmit, onCancel }: ClientFormProps) {
           onChange={(e) => setHourlyRate(e.target.value)}
         />
       </div>
-      {!online ? <p className="text-sm text-amber-800">{OFFLINE_MESSAGE}</p> : null}
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {!online ? <p className="text-sm text-warning">{OFFLINE_MESSAGE}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
       <div className="flex gap-2">
         <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
           Cancelar

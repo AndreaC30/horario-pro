@@ -139,7 +139,7 @@ export function ShiftQuickForm({
             required
             aria-invalid={Boolean(fieldErrors.start)}
           />
-          {fieldErrors.start ? <p className="mt-1 text-sm text-red-600">{fieldErrors.start}</p> : null}
+          {fieldErrors.start ? <p className="mt-1 text-sm text-danger">{fieldErrors.start}</p> : null}
         </div>
         <div>
           <Label htmlFor="end_time">Hora fin</Label>
@@ -154,14 +154,14 @@ export function ShiftQuickForm({
             required
             aria-invalid={Boolean(fieldErrors.end)}
           />
-          {fieldErrors.end ? <p className="mt-1 text-sm text-red-600">{fieldErrors.end}</p> : null}
+          {fieldErrors.end ? <p className="mt-1 text-sm text-danger">{fieldErrors.end}</p> : null}
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className="min-h-touch rounded-full border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700"
+          className="min-h-touch rounded-full border border-border bg-white/[0.04] px-3 text-sm font-medium text-text-primary"
           onClick={() => {
             setEndTime(setEndToNow());
             markDirty();
@@ -171,7 +171,7 @@ export function ShiftQuickForm({
         </button>
         <button
           type="button"
-          className="min-h-touch rounded-full border border-slate-300 bg-white px-3 text-sm font-medium text-slate-700"
+          className="min-h-touch rounded-full border border-border bg-white/[0.04] px-3 text-sm font-medium text-text-primary"
           onClick={() => {
             setStartTime(setStartHoursAgo(8));
             markDirty();
@@ -182,7 +182,7 @@ export function ShiftQuickForm({
       </div>
 
       {preview ? (
-        <p className="rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-700">
+        <p className="rounded-xl border border-border bg-white/[0.03] px-3 py-2 text-sm text-text-secondary">
           Vista previa: <strong>{formatHours(preview.hours)}</strong>
           {" · "}
           <strong>
@@ -213,13 +213,13 @@ export function ShiftQuickForm({
             }}
             aria-invalid={Boolean(fieldErrors.break)}
           />
-          {fieldErrors.break ? <p className="mt-1 text-sm text-red-600">{fieldErrors.break}</p> : null}
+          {fieldErrors.break ? <p className="mt-1 text-sm text-danger">{fieldErrors.break}</p> : null}
         </div>
 
-        <label className="flex min-h-touch cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+        <label className="flex min-h-touch cursor-pointer items-center gap-2 text-sm font-medium text-text-primary">
           <input
             type="checkbox"
-            className="h-5 w-5 rounded border-slate-300"
+            className="h-5 w-5 rounded border-border accent-primary"
             checked={drivingEnabled}
             onChange={(e) => {
               setDrivingEnabled(e.target.checked);
@@ -264,8 +264,8 @@ export function ShiftQuickForm({
         </div>
       </Collapsible>
 
-      {!online ? <p className="text-sm text-amber-800">{OFFLINE_MESSAGE}</p> : null}
-      {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
+      {!online ? <p className="text-sm text-warning">{OFFLINE_MESSAGE}</p> : null}
+      {submitError ? <p className="text-sm text-danger">{submitError}</p> : null}
 
       <Button type="submit" className="w-full" loading={loading} disabled={!online}>
         Guardar jornada

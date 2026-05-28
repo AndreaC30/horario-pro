@@ -40,5 +40,8 @@ smoke-https:
 qa-api:
 	python3 scripts/qa_api_smoke.py
 
-qa: qa-api
-	@echo "Smoke API OK. Completa casos manuales en docs/pliego/05-qa-checklist.md (UX, PWA móvil, AUTH-05)."
+qa-e2e:
+	cd frontend && npm run test:e2e
+
+qa: qa-api qa-e2e
+	@echo "QA API + E2E OK. Opcional: UXM-01 cronómetro manual; PWA Add to Home en móvil físico."

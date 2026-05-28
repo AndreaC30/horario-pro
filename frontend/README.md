@@ -39,12 +39,12 @@ Tras desplegar una versión nueva, el SW se actualiza solo (`registerType: autoU
 - `src/services/` — cliente HTTP (`apiClient`)
 - `public/` — iconos PWA estáticos
 
-## Pre-QA manual (FE-073)
+## Tests E2E (QA)
 
-Antes del checklist [`docs/pliego/05-qa-checklist.md`](../docs/pliego/05-qa-checklist.md):
+```bash
+# Docker en :8080 + .env con bootstrap
+PLAYWRIGHT_BROWSERS_PATH=0 npx playwright install chromium   # primera vez
+npm run test:e2e
+```
 
-1. Login → Dashboard
-2. Nueva jornada (flujo rápido) → guardar
-3. Historial → editar / eliminar
-4. CRUD clientes
-5. Instalar PWA en móvil (INF-03)
+Cubre login, logout, sesión, CTA dashboard, historial/eliminar, XSS en notas, scroll horizontal. Ver [`docs/pliego/05-qa-ejecucion.md`](../docs/pliego/05-qa-ejecucion.md).

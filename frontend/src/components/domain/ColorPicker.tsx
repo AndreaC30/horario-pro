@@ -1,17 +1,17 @@
-/** UX-C07: paleta limitada (≤12) para elegir rápido en móvil */
+/** Paleta 2026 — alineada con docs/pliego/06-diseno-ui.md */
 const PRESET_COLORS = [
-  "#2563eb",
-  "#16a34a",
-  "#dc2626",
-  "#ca8a04",
-  "#7c3aed",
-  "#0891b2",
-  "#ea580c",
-  "#64748b",
-  "#db2777",
-  "#059669",
-  "#b45309",
-  "#0d9488",
+  "#7C5CFF",
+  "#06B6D4",
+  "#22C55E",
+  "#F97316",
+  "#EC4899",
+  "#EAB308",
+  "#64748B",
+  "#2563EB",
+  "#DC2626",
+  "#14B8A6",
+  "#A855F7",
+  "#F43F5E",
 ];
 
 type ColorPickerProps = {
@@ -26,7 +26,11 @@ export function ColorPicker({ value, onChange }: ColorPickerProps) {
         <button
           key={color}
           type="button"
-          className={`h-11 w-11 rounded-full border-2 ${value === color ? "border-slate-900 ring-2 ring-primary/30" : "border-white shadow-sm"}`}
+          className={`h-11 w-11 rounded-full border-2 transition ${
+            value === color
+              ? "border-primary ring-2 ring-primary/40 ring-offset-2 ring-offset-background"
+              : "border-white/20"
+          }`}
           style={{ backgroundColor: color }}
           aria-label={`Color ${color}`}
           aria-pressed={value === color}

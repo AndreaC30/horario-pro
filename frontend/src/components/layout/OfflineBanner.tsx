@@ -1,6 +1,5 @@
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 
-/** FE-063: aviso visible sin conexión */
 export function OfflineBanner() {
   const online = useOnlineStatus();
 
@@ -10,7 +9,7 @@ export function OfflineBanner() {
 
   return (
     <div
-      className="bg-amber-500 px-4 py-2 text-center text-sm font-medium text-amber-950"
+      className="bg-warning/20 px-4 py-2 text-center text-sm font-medium text-warning"
       role="status"
       aria-live="polite"
     >

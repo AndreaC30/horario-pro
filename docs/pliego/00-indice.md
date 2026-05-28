@@ -9,6 +9,7 @@ Descomposición del MVP en tareas por capa. Generado a partir del pliego *Aplica
 | [03-infra-tareas.md](./03-infra-tareas.md) | Docker Compose, Nginx, HTTPS, entornos |
 | [04-ux-criterios.md](./04-ux-criterios.md) | Criterios UX medibles por vista |
 | [05-qa-checklist.md](./05-qa-checklist.md) | Casos de prueba y regresión MVP |
+| [06-diseno-ui.md](./06-diseno-ui.md) | Sistema de diseño WorkShift 2026, iconos PWA |
 
 ## Mejoras y v2
 
@@ -21,4 +22,4 @@ Descomposición del MVP en tareas por capa. Generado a partir del pliego *Aplica
 3. CRUD clientes → CRUD jornadas → resúmenes dashboard  
 4. UI vistas en paralelo tras contrato API estable  
 5. PWA + despliegue VPS — **código FE-060–063 en repo**; despliegue VPS según `deploy/`  
-6. QA según checklist (`05-qa-checklist.md`) — **API automatizada OK**; UI/prod manual en [05-qa-ejecucion.md](./05-qa-ejecucion.md)  
+6. QA según checklist (`05-qa-checklist.md`) — **`make qa` OK** en dev; prod HTTPS al desplegar ([05-qa-ejecucion.md](./05-qa-ejecucion.md))  

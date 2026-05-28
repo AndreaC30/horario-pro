@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
+import { BrandLogo } from "../components/ui/BrandLogo";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
@@ -48,8 +49,11 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-app flex-col justify-center px-4 py-8">
-      <Card title="HorarioPro">
-        <p className="mb-4 text-sm text-slate-600">Inicia sesión para registrar tus jornadas.</p>
+      <div className="mb-8">
+        <BrandLogo size="lg" />
+      </div>
+      <Card>
+        <p className="mb-5 text-sm text-text-secondary">Inicia sesión para registrar tus jornadas.</p>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email">Email</Label>
@@ -73,8 +77,8 @@ export function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {!online ? <p className="text-sm text-amber-800">{OFFLINE_MESSAGE}</p> : null}
-          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          {!online ? <p className="text-sm text-warning">{OFFLINE_MESSAGE}</p> : null}
+          {error ? <p className="text-sm text-danger">{error}</p> : null}
           <Button type="submit" className="w-full" loading={submitting} disabled={!online}>
             Entrar
           </Button>

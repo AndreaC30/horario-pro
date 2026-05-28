@@ -23,7 +23,7 @@ export function ShiftListItem({ shift, showDelete, onDelete }: ShiftListItemProp
     <div className="flex items-stretch gap-1">
       <Link
         to={`/jornada/${shift.id}`}
-        className="flex min-h-touch flex-1 items-center gap-3 rounded-xl border border-slate-200 bg-white px-3 py-3 transition hover:border-primary/40"
+        className="flex min-h-touch flex-1 items-center gap-3 rounded-xl border border-border bg-white/[0.02] px-3 py-3 transition hover:border-primary/50 hover:bg-white/[0.04]"
       >
         <span
           className="h-10 w-1 shrink-0 rounded-full"
@@ -31,20 +31,20 @@ export function ShiftListItem({ shift, showDelete, onDelete }: ShiftListItemProp
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-slate-900">{shift.client.name}</p>
-          <p className="text-xs text-slate-500">
+          <p className="truncate font-medium text-text-primary">{shift.client.name}</p>
+          <p className="text-xs text-text-secondary">
             {date} · {formatHours(shift.worked_hours)}
             {drivingLabel}
           </p>
         </div>
-        <p className="text-sm font-semibold text-slate-800">
+        <p className="text-sm font-semibold text-text-primary">
           {formatEstimatedPay(shift.estimated_pay, shift.client.hourly_rate)}
         </p>
       </Link>
       {showDelete && onDelete ? (
         <button
           type="button"
-          className="min-h-touch min-w-[2.75rem] rounded-xl border border-slate-200 bg-white px-2 text-sm text-red-600"
+          className="min-h-touch min-w-[2.75rem] rounded-xl border border-border bg-white/[0.02] px-2 text-sm text-danger"
           aria-label={`Eliminar jornada de ${shift.client.name}`}
           onClick={() => onDelete(shift)}
         >
