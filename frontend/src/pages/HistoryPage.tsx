@@ -45,16 +45,16 @@ export function HistoryPage() {
   return (
     <div className="space-y-4">
       <Card>
-        <p className="mb-2 text-sm font-medium text-slate-700">Periodo</p>
+        <p className="mb-2 text-sm font-medium text-text-secondary">Periodo</p>
         <div className="flex flex-wrap gap-2">
           {HISTORY_PRESETS.map((preset) => (
             <button
               key={preset.id}
               type="button"
-              className={`min-h-touch rounded-full border px-4 text-sm font-medium ${
+              className={`min-h-touch rounded-full border px-4 text-sm font-medium transition ${
                 presetId === preset.id
-                  ? "border-primary bg-primary text-white"
-                  : "border-slate-300 bg-white text-slate-700"
+                  ? "border-primary bg-primary text-white shadow-glass"
+                  : "border-border bg-white/[0.03] text-text-secondary hover:border-white/20"
               }`}
               onClick={() => setPresetId(preset.id)}
             >
@@ -84,7 +84,7 @@ export function HistoryPage() {
       ) : null}
 
       <Modal open={Boolean(toDelete)} title="Eliminar jornada" onClose={() => setToDelete(null)}>
-        <p className="mb-4 text-sm text-slate-600">
+        <p className="mb-4 text-sm text-text-secondary">
           ¿Eliminar la jornada del <strong>{deleteSummary}</strong>? Esta acción no se puede deshacer.
         </p>
         <div className="flex gap-2">

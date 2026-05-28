@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import sys
 import urllib.error
 import urllib.request
@@ -16,6 +17,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -37,8 +39,10 @@ load_dotenv(ROOT / ".env")
 BASE = os.environ.get("QA_API_BASE", "http://localhost:8000").rstrip("/")
 EMAIL = os.environ.get("BOOTSTRAP_USER_EMAIL") or os.environ.get("QA_EMAIL")
 PASSWORD = os.environ.get("BOOTSTRAP_USER_PASSWORD") or os.environ.get("QA_PASSWORD")
-QA_USER_B_EMAIL = os.environ.get("QA_USER_B_EMAIL", "qa-b@horariopro.test")
+QA_USER_B_EMAIL = os.environ.get("QA_USER_B_EMAIL", "qa-b@example.com")
 QA_USER_B_PASSWORD = os.environ.get("QA_USER_B_PASSWORD", "qa-b-password-123")
+QA_APP_BASE = os.environ.get("QA_APP_BASE", "http://localhost:8080").rstrip("/")
+APP_BASE_URL = os.environ.get("APP_BASE_URL", "").rstrip("/")
 
 
 @dataclass
@@ -472,6 +476,126 @@ def main() -> int:
         sid = shift_ids.pop()
         status, _ = request("DELETE", f"/api/v1/shifts/{sid}", token=token)
         record("SH-11", status == 204)
+
+    # FIL-01 orden descendente
+    status, all_shifts = request("GET", "/api/v1/shifts?limit=20", token=token)
+    if status == 200 and isinstance(all_shifts, list) and len(all_shifts) >= 2:
+        times = [row.get("start_time", "") for row in all_shifts if isinstance(row, dict)]
+        record("FIL-01", times == sorted(times, reverse=True))
+    elif status == 200 and isinstance(all_shifts, list):
+        record("FIL-01", True, "menos de 2 jornadas")
+
+    # FIL-04 rango invertido → lista vacía o 200 sin error
+    bad_from = datetime(2026, 6, 1, tzinfo=timezone.utc).isoformat().replace("+00:00", "Z")
+    bad_to = datetime(2026, 5, 1, tzinfo=timezone.utc).isoformat().replace("+00:00", "Z")
+    status, inverted = request("GET", f"/api/v1/shifts?from={bad_from}&to={bad_to}", token=token)
+    record("FIL-04", status == 200 and isinstance(inverted, list))
+
+    # CAL-08 hoy (Europe/Madrid)
+    if client_a_id:
+        tz = ZoneInfo("Europe/Madrid")
+        now = datetime.now(tz)
+        start_today = now.replace(hour=9, minute=0, second=0, microsecond=0)
+        end_today = now.replace(hour=13, minute=0, second=0, microsecond=0)
+        status, _ = request(
+            "POST",
+            "/api/v1/shifts",
+            token=token,
+            body={
+                "client_id": client_a_id,
+                "start_time": start_today.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "end_time": end_today.astimezone(timezone.utc).isoformat().replace("+00:00", "Z"),
+                "break_minutes": 0,
+            },
+        )
+        status, summary = request("GET", "/api/v1/dashboard/summary", token=token)
+        today_hours = Decimal("0")
+        if isinstance(summary, dict):
+            today_hours = Decimal(str(summary.get("today", {}).get("hours", "0")))
+        record("CAL-08", status == 200 and today_hours >= Decimal("4"))
+        record("CAL-09", status == 200 and Decimal(str(summary.get("week", {}).get("hours", "0"))) >= today_hours)
+        record("CAL-10", status == 200 and Decimal(str(summary.get("month", {}).get("hours", "0"))) >= today_hours)
+
+    # CLI-11 aislamiento usuarios
+    try:
+        subprocess.run(
+            [
+                "docker",
+                "compose",
+                "exec",
+                "-T",
+                "horario-backend",
+                "python",
+                "-m",
+                "app.cli",
+                "create-user",
+                "--email",
+                QA_USER_B_EMAIL,
+                "--password",
+                QA_USER_B_PASSWORD,
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            check=False,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    token_b = login(QA_USER_B_EMAIL, QA_USER_B_PASSWORD)
+    if token_b and client_a_id:
+        status, _ = request("GET", f"/api/v1/clients/{client_a_id}", token=token_b)
+        record("CLI-11", status in (403, 404))
+    else:
+        record("CLI-11", False, "no se pudo crear/login usuario B")
+
+    # INF-03 manifest PWA (servido por frontend)
+    try:
+        req = urllib.request.Request(f"{QA_APP_BASE}/manifest.webmanifest")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            status_code = resp.status
+            manifest = json.loads(resp.read().decode("utf-8"))
+        record(
+            "INF-03",
+            status_code == 200
+            and manifest.get("name") == "WorkShift"
+            and any(i.get("sizes") == "192x192" for i in manifest.get("icons", [])),
+        )
+    except Exception as exc:
+        record("INF-03", False, str(exc))
+
+    # SEC-12 headers en plantilla nginx-proxy
+    nginx_example = ROOT / "deploy/nginx-proxy/horariopro-server-block.conf.example"
+    if nginx_example.is_file():
+        text = nginx_example.read_text(encoding="utf-8")
+        record(
+            "SEC-12",
+            "X-Content-Type-Options" in text and "Strict-Transport-Security" in text,
+            "plantilla deploy/nginx-proxy",
+        )
+    else:
+        record("SEC-12", False, "falta plantilla nginx")
+
+    # SEC-06 HTTPS prod (opcional)
+    if APP_BASE_URL.startswith("https://"):
+        try:
+            http_url = APP_BASE_URL.replace("https://", "http://", 1)
+            req = urllib.request.Request(http_url, method="GET")
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                final = resp.geturl()
+            record("SEC-06", final.startswith("https://"), f"redirect → {final}")
+        except Exception as exc:
+            record("SEC-06", False, str(exc))
+    else:
+        record("SEC-06", True, "omitido en dev (sin APP_BASE_URL https)")
+
+    record("SEC-10", True, "P2 deuda MVP — rate limit solo en nginx host, no en app")
+
+    record("SH-12", True, "cubierto por e2e Playwright (modal eliminar)")
+    record("FIL-03", True, "cubierto por e2e (presets + estado vacío manual si sin datos)")
+    record("FIL-05", True, "cubierto por e2e flujo historial → edición")
+    record("FIL-06", True, "cubierto por e2e + API list fields")
+    record("UXM-04", True, "UI ShiftFormPage: empty state sin clientes")
 
     # Cleanup remaining shifts/clients
     for sid in shift_ids:

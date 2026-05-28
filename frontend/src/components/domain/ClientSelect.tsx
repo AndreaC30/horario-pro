@@ -14,7 +14,7 @@ type ClientSelectProps = {
 export function ClientSelect({ clients, value, onChange, error, onNewClient }: ClientSelectProps) {
   if (clients.length === 0) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-3 text-sm text-amber-900">
+      <div className="rounded-xl border border-warning/30 bg-warning/10 px-3 py-3 text-sm text-warning">
         <p>Crea tu primer cliente antes de registrar una jornada.</p>
         {onNewClient ? (
           <button type="button" className="mt-2 font-semibold text-primary underline" onClick={onNewClient}>
@@ -46,20 +46,18 @@ export function ClientSelect({ clients, value, onChange, error, onNewClient }: C
         ) : null}
       </div>
       {selected ? (
-        <div className="flex items-center gap-2 text-sm text-slate-600">
+        <div className="flex items-center gap-2 text-sm text-text-secondary">
           <span
-            className="h-4 w-4 shrink-0 rounded-full border border-slate-200"
+            className="h-4 w-4 shrink-0 rounded-full border border-border"
             style={{ backgroundColor: selected.color }}
             aria-hidden
           />
-          <span className="truncate font-medium text-slate-800">{selected.name}</span>
+          <span className="truncate font-medium text-text-primary">{selected.name}</span>
         </div>
       ) : null}
       <select
         id="client_id"
-        className={`min-h-touch w-full rounded-xl border px-3 py-2 text-base ${
-          error ? "border-red-500" : "border-slate-300"
-        }`}
+        className={`glass-input ${error ? "border-danger" : ""}`}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         required
@@ -73,7 +71,7 @@ export function ClientSelect({ clients, value, onChange, error, onNewClient }: C
           </option>
         ))}
       </select>
-      {error ? <p className="text-sm text-red-600">{error}</p> : null}
+      {error ? <p className="text-sm text-danger">{error}</p> : null}
     </div>
   );
 }
