@@ -2,12 +2,14 @@ import logging
 
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
+from pydantic import ValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
 from app.core.exceptions import (
     http_exception_handler,
     unhandled_exception_handler,
+    pydantic_validation_exception_handler,
     validation_exception_handler,
 )
 from app.core.logging_config import setup_logging
@@ -33,8 +35,9 @@ app.add_middleware(
 )
 
 app.add_exception_handler(HTTPException, http_exception_handler)
-app.add_exception_handler(Exception, unhandled_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
+app.add_exception_handler(ValidationError, pydantic_validation_exception_handler)
+app.add_exception_handler(Exception, unhandled_exception_handler)
 
 app.include_router(health.router)
 app.include_router(auth.router)

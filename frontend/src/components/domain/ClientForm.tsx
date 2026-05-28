@@ -1,6 +1,8 @@
 import { FormEvent, useState } from "react";
 
+import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import type { Client, ClientInput } from "../../types/api";
+import { OFFLINE_MESSAGE } from "../../utils/network";
 import { Button } from "../ui/Button";
 import { Input } from "../ui/Input";
 import { Label } from "../ui/Label";
@@ -18,6 +20,7 @@ export function ClientForm({ initial, onSubmit, onCancel }: ClientFormProps) {
   const [hourlyRate, setHourlyRate] = useState(initial?.hourly_rate ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const online = useOnlineStatus();
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -58,12 +61,13 @@ export function ClientForm({ initial, onSubmit, onCancel }: ClientFormProps) {
           onChange={(e) => setHourlyRate(e.target.value)}
         />
       </div>
+      {!online ? <p className="text-sm text-amber-800">{OFFLINE_MESSAGE}</p> : null}
       {error ? <p className="text-sm text-red-600">{error}</p> : null}
       <div className="flex gap-2">
         <Button type="button" variant="secondary" className="flex-1" onClick={onCancel}>
           Cancelar
         </Button>
-        <Button type="submit" className="flex-1" loading={loading}>
+        <Button type="submit" className="flex-1" loading={loading} disabled={!online}>
           Guardar
         </Button>
       </div>

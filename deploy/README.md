@@ -40,6 +40,26 @@ No uses `deploy/scripts/install-nginx-site.sh` ni `certbot-init.sh` salvo que mi
 
 Ver [`nginx/README.md`](./nginx/README.md) (plantillas y scripts para `/etc/nginx`). No aplica a tu VPS actual.
 
+## Backups PostgreSQL (INF-501)
+
+En el VPS, cron diario (ajusta rutas y nombre del contenedor):
+
+```bash
+chmod +x deploy/scripts/backup-postgres.sh
+0 3 * * * cd /ruta/horario-pro && ./deploy/scripts/backup-postgres.sh /var/backups/horariopro
+```
+
+Variables opcionales: `POSTGRES_CONTAINER`, `RETENTION_DAYS` (default 30).  
+Probar restore al menos una vez en staging antes de confiar en producción (INF-502).
+
+## Smoke post-deploy (INF-406)
+
+```bash
+./deploy/scripts/smoke-https.sh https://workshift.andreacruz.es
+```
+
+Checklist manual: [`docs/pliego/03-infra-tareas.md`](../docs/pliego/03-infra-tareas.md) (Fase 4).
+
 ## Sin Docker
 
 Ver `backend/README.md` y `frontend/README.md`.

@@ -1,21 +1,50 @@
 # HorarioPro — Frontend
 
-React + Vite + Tailwind CSS (mobile first).
+React 19 + Vite 6 + Tailwind. PWA instalable (Fase 7 del pliego).
 
-## Desarrollo local
+## Variables de entorno
+
+Definidas en la raíz del monorepo (`horario-pro/.env`). Vite las carga con `envDir: ".."`:
+
+| Variable | Descripción |
+|----------|-------------|
+| `VITE_API_BASE_URL` | Base de la API. Local: `http://localhost:8000`. Producción mismo origen: `/api` |
+| `VITE_DEV_BYPASS_AUTH` | `true` solo desarrollo nativo sin login (Docker: `false`) |
+
+Ver [`.env.example`](../.env.example).
+
+## Comandos
 
 ```bash
-cd frontend
-npm install
-cp .env.example .env
-npm run dev
+npm ci
+npm run dev          # http://localhost:5173 (PWA dev habilitada)
+npm run build        # dist/ + service worker
+npm run preview      # previsualizar build
+npm run icons        # regenerar PNG desde public/icon.svg (requiere sharp)
 ```
 
-App: http://localhost:5173
+## PWA (FE-060–063)
 
-## Build
+- **Manifest** + iconos 192/512 generados en `public/`.
+- **Service worker** (`vite-plugin-pwa`): shell en caché; GET `/api/*` network-first.
+- **Offline**: banner en app autenticada; POST/PATCH/DELETE bloqueados sin red.
+- **Instalar**: Chrome → «Instalar app»; iOS → Compartir → «Añadir a pantalla de inicio».
 
-```bash
-npm run build
-npm run preview
-```
+Tras desplegar una versión nueva, el SW se actualiza solo (`registerType: autoUpdate`).
+
+## Estructura
+
+- `src/pages/` — vistas por ruta
+- `src/components/domain/` — formularios y listas de negocio
+- `src/services/` — cliente HTTP (`apiClient`)
+- `public/` — iconos PWA estáticos
+
+## Pre-QA manual (FE-073)
+
+Antes del checklist [`docs/pliego/05-qa-checklist.md`](../docs/pliego/05-qa-checklist.md):
+
+1. Login → Dashboard
+2. Nueva jornada (flujo rápido) → guardar
+3. Historial → editar / eliminar
+4. CRUD clientes
+5. Instalar PWA en móvil (INF-03)

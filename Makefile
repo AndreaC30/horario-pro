@@ -1,4 +1,4 @@
-.PHONY: dev-backend dev-frontend docker-up docker-down docker-prod docker-prod-logs nginx-render smoke-https
+.PHONY: dev-backend dev-frontend docker-up docker-down docker-prod docker-prod-logs nginx-render smoke-https qa-api qa
 
 BACKEND_PORT ?= 8000
 
@@ -36,3 +36,9 @@ nginx-render:
 smoke-https:
 	@test -n "$(APP_BASE_URL)" || (echo "Define APP_BASE_URL=https://..." && exit 1)
 	./deploy/scripts/smoke-https.sh
+
+qa-api:
+	python3 scripts/qa_api_smoke.py
+
+qa: qa-api
+	@echo "Smoke API OK. Completa casos manuales en docs/pliego/05-qa-checklist.md (UX, PWA móvil, AUTH-05)."

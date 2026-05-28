@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { Button } from "../ui/Button";
 import { BottomNav } from "./BottomNav";
+import { OfflineBanner } from "./OfflineBanner";
 
 type AppShellProps = {
   title: string;
@@ -27,6 +28,7 @@ export function AppShell({ title, children }: AppShellProps) {
           Salir
         </Button>
       </header>
+      <OfflineBanner />
       <main className="flex-1 px-4 py-4">{children}</main>
       <BottomNav />
     </div>

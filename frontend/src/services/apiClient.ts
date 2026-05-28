@@ -1,3 +1,4 @@
+import { isOnline, OFFLINE_MESSAGE } from "../utils/network";
 import { clearToken, getToken } from "../utils/storage";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
@@ -17,8 +18,18 @@ type RequestOptions = RequestInit & {
   skipAuth?: boolean;
 };
 
+function isMutation(method?: string): boolean {
+  const verb = (method ?? "GET").toUpperCase();
+  return verb !== "GET" && verb !== "HEAD";
+}
+
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { skipAuth = false, headers, ...rest } = options;
+
+  if (!isOnline() && isMutation(rest.method)) {
+    throw new ApiError(OFFLINE_MESSAGE, 0);
+  }
+
   const requestHeaders = new Headers(headers);
 
   if (!skipAuth) {
