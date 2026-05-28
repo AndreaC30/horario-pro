@@ -1,4 +1,4 @@
-.PHONY: dev-backend dev-frontend docker-up docker-down docker-prod
+.PHONY: dev-backend dev-frontend docker-up docker-down docker-prod docker-prod-logs nginx-render smoke-https
 
 BACKEND_PORT ?= 8000
 
@@ -25,3 +25,14 @@ docker-down:
 
 docker-prod:
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile postgres up -d --build
+
+docker-prod-logs:
+	docker compose -f docker-compose.yml -f docker-compose.prod.yml --profile postgres logs -f
+
+nginx-render:
+	@test -n "$(APP_DOMAIN)" || (echo "Define APP_DOMAIN=..." && exit 1)
+	./deploy/scripts/render-nginx-config.sh
+
+smoke-https:
+	@test -n "$(APP_BASE_URL)" || (echo "Define APP_BASE_URL=https://..." && exit 1)
+	./deploy/scripts/smoke-https.sh

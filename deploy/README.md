@@ -1,42 +1,44 @@
 # Despliegue HorarioPro
 
-## Local / pruebas con Docker
-
-`docker-compose.override.yml` se aplica automáticamente:
+## Local / pruebas (Docker)
 
 ```bash
 cp .env.example .env
-docker compose up --build
+docker compose up -d --build
 ```
 
-- API: http://localhost:8000/health  
-- SPA: http://localhost:8080  
-- SQLite en volumen `horario_sqlite_data`
+- App: http://localhost:8080  
+- API: http://localhost:8000  
+- `docker-compose.override.yml` → SQLite y puertos locales.
 
-## VPS (Nginx ya en el host)
+## Producción en VPS (tu setup: nginx-proxy)
 
-No hay servicio Nginx en Compose. Ejemplo de upstreams:
+Stack centralizado en `~/nginx-proxy` + red **`gastodehoy_backend`**.  
+**Guía paso a paso:** [`nginx-proxy/README.md`](./nginx-proxy/README.md)
 
-```nginx
-location / {
-    proxy_pass http://127.0.0.1:8080;  # horario-frontend (mapear puerto si hace falta)
-}
-location /api/ {
-    proxy_pass http://127.0.0.1:8000/;  # horario-backend
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto $scheme;
-}
-```
+Resumen:
 
-Producción con PostgreSQL:
+1. `make docker-prod` (o compose con `docker-compose.prod.yml`) — contenedores en la red del proxy.
+2. Añadir bloque `server` en `/root/nginx-proxy/nginx/conf.d/default.conf` desde  
+   [`nginx-proxy/horariopro-server-block.conf.example`](./nginx-proxy/horariopro-server-block.conf.example).
+3. Certbot con `docker compose run --rm certbot ...` en `~/nginx-proxy`.
+4. `docker compose exec nginx nginx -s reload`.
 
-```bash
-docker compose --profile postgres up -d --build
-```
+No uses `deploy/scripts/install-nginx-site.sh` ni `certbot-init.sh` salvo que migres a Nginx en el host.
 
-Ajustar `.env`: `DATABASE_URL`, secretos y `VITE_API_BASE_URL` para el dominio real.
+### Variables `.env` en el servidor
+
+| Variable | Ejemplo |
+|----------|---------|
+| `DOCKER_PROXY_NETWORK` | `gastodehoy_backend` (default) |
+| `APP_DOMAIN` | `workshift.andreacruz.es` |
+| `APP_BASE_URL` | `https://workshift.andreacruz.es` |
+| `CORS_ORIGINS` | misma URL |
+| `VITE_API_BASE_URL` | `/api` |
+
+## Alternativa: Nginx instalado en el SO
+
+Ver [`nginx/README.md`](./nginx/README.md) (plantillas y scripts para `/etc/nginx`). No aplica a tu VPS actual.
 
 ## Sin Docker
 
