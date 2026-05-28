@@ -8,6 +8,7 @@ Un solo comando desde la raíz del repo:
 
 ```bash
 cp .env.example .env
+cp docker-compose.override.example.yml docker-compose.override.yml
 # Edita .env: SECRET_KEY, BOOTSTRAP_USER_EMAIL, BOOTSTRAP_USER_PASSWORD
 docker compose up -d --build
 ```
@@ -20,7 +21,7 @@ docker compose up -d --build
 
 Logs: `make docker-logs` · Parar: `make docker-down`
 
-`docker-compose.override.yml` aplica SQLite, puertos locales y creación del usuario bootstrap.
+`docker-compose.override.yml` (local, no versionado) aplica SQLite, puertos y usuario bootstrap; la plantilla está en `docker-compose.override.example.yml`.
 
 ## Variables `.env` imprescindibles
 

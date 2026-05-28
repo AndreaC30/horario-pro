@@ -12,6 +12,9 @@ out/
 # Environment variables
 .env
 .env.local
+
+# Docker Compose local (SQLite, puertos); plantilla: docker-compose.override.example.yml
+docker-compose.override.yml
 .env.development.local
 .env.test.local
 .env.production.local
