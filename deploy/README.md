@@ -4,12 +4,13 @@
 
 ```bash
 cp .env.example .env
+cp docker-compose.override.example.yml docker-compose.override.yml
 docker compose up -d --build
 ```
 
 - App: http://localhost:8080  
 - API: http://localhost:8000  
-- `docker-compose.override.yml` → SQLite y puertos locales.
+- `docker-compose.override.yml` (copia local desde `.example.yml`) → SQLite y puertos.
 
 ## Producción en VPS (tu setup: nginx-proxy)
 

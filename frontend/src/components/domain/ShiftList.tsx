@@ -1,3 +1,4 @@
+import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
 
@@ -13,6 +14,19 @@ type ShiftListProps = {
   emptyAction?: ReactNode;
   showDelete?: boolean;
   onDelete?: (shift: Shift) => void;
+};
+
+const container = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: { staggerChildren: 0.05 },
+  },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0 },
 };
 
 export function ShiftList({
@@ -40,12 +54,17 @@ export function ShiftList({
   }
 
   return (
-    <ul className="space-y-2">
+    <motion.ul
+      className="space-y-2"
+      variants={container}
+      initial="hidden"
+      animate="show"
+    >
       {shifts.map((shift) => (
-        <li key={shift.id}>
+        <motion.li key={shift.id} variants={item}>
           <ShiftListItem shift={shift} showDelete={showDelete} onDelete={onDelete} />
-        </li>
+        </motion.li>
       ))}
-    </ul>
+    </motion.ul>
   );
 }

@@ -34,7 +34,7 @@ export function ClientEarningsBreakdown({ week, month }: ClientEarningsBreakdown
             type="button"
             className={`min-h-touch rounded-full border px-4 text-sm font-medium transition ${
               period === key
-                ? "border-primary bg-primary text-white shadow-glass"
+                ? "border-primary bg-primary text-white shadow-card"
                 : "border-border bg-white/[0.03] text-text-secondary hover:border-white/20"
             }`}
             onClick={() => setPeriod(key)}
