@@ -23,7 +23,7 @@ export function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex min-h-dvh items-center justify-center bg-background">
         <p className="text-sm text-text-secondary">Cargando sesión…</p>
       </div>
     );

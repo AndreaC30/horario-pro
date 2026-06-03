@@ -21,7 +21,7 @@ export function BrandLogo({ size = "md", showText = true }: BrandLogoProps) {
       <img
         src="/brand-logo.png"
         alt={alt}
-        className={`${s.img} shadow-glass`}
+        className={`${s.img} shadow-card`}
         width={512}
         height={512}
         decoding="async"

@@ -48,7 +48,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-app flex-col justify-center px-4 py-8">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col justify-center px-4 py-8">
       <div className="mb-10 flex w-full justify-center">
         <BrandLogo size="xl" showText={false} />
       </div>
