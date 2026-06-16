@@ -4,6 +4,8 @@ import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBrea
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
+import { ShineBorder } from "../components/effects/ShineBorder";
+import { Marquee } from "../components/effects/Marquee";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -35,6 +37,7 @@ function StaggeredGroup({ children }: { children: React.ReactNode }) {
   );
 }
 
+import { PiHandWaving, PiRocketLaunch } from "react-icons/pi";
 import React from "react";
 
 export function DashboardPage() {
@@ -75,6 +78,17 @@ export function DashboardPage() {
           </p>
         </header>
 
+        {/* Marquee welcome */}
+        <div className="animate-fade-up stagger-1">
+          <Marquee speed="slower" pauseOnHover>
+            <span className="mx-4 inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary">
+              <PiHandWaving className="inline shrink-0" /> Bienvenida a WorkShift · Registra tus jornadas fácilmente · Controla tus ingresos · 
+              {Number(data.month.hours) > 0 ? ` Este mes llevas ${formatHours(data.month.hours)} · ` : " "}
+              ¡A por ello! <PiRocketLaunch className="inline shrink-0" />
+            </span>
+          </Marquee>
+        </div>
+
         {/* Desktop CTA */}
         <div className="hidden sm:block">
           <Link to="/jornada/nueva" className="block">
@@ -85,10 +99,10 @@ export function DashboardPage() {
         {/* Stats grid */}
         <StaggeredGroup>
           <div className="grid grid-cols-2 gap-3">
-            <StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" />
+            <ShineBorder speed="slow"><StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" /></ShineBorder>
+            <ShineBorder speed="slow"><StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" /></ShineBorder>
+            <ShineBorder speed="slow"><StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" /></ShineBorder>
+            <ShineBorder speed="slow"><StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" subvalue={parseFloat(data.today.hours) || 0} subSuffix="h" /></ShineBorder>
           </div>
         </StaggeredGroup>
 
