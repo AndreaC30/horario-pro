@@ -2,90 +2,172 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Light theme (default, no .dark class) ===== */
+:root {
+  --bg: #F8FAFC;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F1F5F9;
+  --border: rgba(0,0,0,0.06);
+  --border-hover: rgba(37,99,235,0.18);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --accent: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-muted: rgba(37,99,235,0.06);
+  --success: #16A34A;
+  --warning: #D97706;
+  --danger: #DC2626;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 4px 12px rgba(37,99,235,0.08), 0 1px 3px rgba(0,0,0,0.08);
+  --fab-shadow: 0 8px 24px rgba(37,99,235,0.25);
+  --ambient-1: rgba(37,99,235,0.04);
+  --ambient-2: rgba(6,182,212,0.02);
+}
+
+/* ===== Dark theme (html.dark) ===== */
+html.dark {
+  --bg: #070B1E;
+  --bg-surface: #0A194B;
+  --bg-surface-elevated: #0F2055;
+  --border: rgba(37,99,235,0.12);
+  --border-hover: rgba(37,99,235,0.20);
+  --text-primary: #F5F7FA;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --accent: #2563EB;
+  --accent-hover: #3B82F6;
+  --accent-muted: rgba(37,99,235,0.10);
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.24);
+  --card-shadow-hover: 0 4px 12px rgba(37,99,235,0.08), 0 1px 3px rgba(0,0,0,0.4);
+  --fab-shadow: 0 8px 32px rgba(37,99,235,0.30);
+  --ambient-1: rgba(37,99,235,0.08);
+  --ambient-2: rgba(6,182,212,0.04);
+}
+
 @layer base {
   html {
     @apply antialiased;
   }
 
-  html.dark body {
-    @apply min-h-dvh bg-background text-text-primary bg-ambient;
+  body {
+    @apply min-h-dvh;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, var(--ambient-1), transparent),
+      radial-gradient(ellipse 60% 40% at 100% 100%, var(--ambient-2), transparent);
+    background-attachment: fixed;
+    color: var(--text-primary);
   }
 
   #root {
     @apply min-h-dvh;
   }
+
+  /* Smooth theme transition */
+  body, body * {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease, box-shadow 0.3s ease;
+  }
 }
 
 @layer components {
-  /* Ambient animated background */
-  .bg-ambient {
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(37,99,235,0.08), transparent),
-      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(6,182,212,0.04), transparent),
-      #070B1E;
-    background-attachment: fixed;
-  }
-
-  /* Card — solid, clean, subtle border */
   .card {
-    @apply rounded-xl border border-border bg-surface p-5;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border-radius: 0.875rem;
+    border: 1px solid var(--border);
+    background-color: var(--bg-surface);
+    padding: 1.25rem;
+    box-shadow: var(--card-shadow);
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
   }
 
   .card:hover {
-    border-color: rgba(37,99,235,0.2);
+    border-color: var(--border-hover);
+    box-shadow: var(--card-shadow-hover);
   }
 
   .card-elevated {
-    @apply rounded-xl border border-border bg-surface-elevated p-5;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.32);
+    border-radius: 0.875rem;
+    border: 1px solid var(--border);
+    background-color: var(--bg-surface-elevated);
+    padding: 1.25rem;
+    box-shadow: var(--card-shadow);
     transition: box-shadow 0.3s ease, border-color 0.3s ease;
   }
 
-  .card-elevated:hover {
-    border-color: rgba(37,99,235,0.2);
-    box-shadow: 0 4px 12px rgba(37,99,235,0.08), 0 4px 6px rgba(0,0,0,0.32);
+  .list-item {
+    display: flex;
+    min-height: 2.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background-color: var(--bg-surface);
+    padding: 0.75rem;
+    transition: all 0.2s ease;
   }
 
-  /* List item — subtle hover lift */
-  .list-item {
-    @apply flex min-h-touch flex-wrap items-center gap-3 rounded-xl border border-border bg-surface px-3 py-3 transition-all duration-200 sm:flex-nowrap;
+  @media (min-width: 640px) {
+    .list-item {
+      flex-wrap: nowrap;
+    }
   }
 
   .list-item:hover {
-    border-color: rgba(37,99,235,0.2);
-    background-color: rgba(37,99,235,0.03);
+    border-color: var(--border-hover);
+    background-color: var(--accent-muted);
   }
 
-  /* Input — clean borders, focus ring using brand blue */
   .input-field {
-    @apply min-h-touch w-full rounded-xl border border-border bg-surface px-3.5 py-3 text-base text-text-primary outline-none transition-all duration-200;
+    @apply min-h-touch w-full rounded-xl px-3.5 py-3 text-base outline-none transition-all duration-200;
+    border: 1px solid var(--border);
+    background-color: var(--bg-surface);
+    color: var(--text-primary);
   }
 
   .input-field:focus {
-    @apply border-primary;
+    border-color: var(--accent);
     box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
   }
 
   .input-field::placeholder {
-    @apply text-text-muted;
+    color: var(--text-muted);
   }
 
-  /* Stat card — compact, numbers-first */
   .stat-card {
-    @apply rounded-xl border border-border bg-surface px-4 py-3.5;
+    border-radius: 0.75rem;
+    border: 1px solid var(--border);
+    background-color: var(--bg-surface);
+    padding: 0.875rem 1rem;
+    box-shadow: var(--card-shadow);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+
+  .stat-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  /* Buttons */
+  .btn-primary {
+    position: relative;
+    overflow: hidden;
+    min-height: 2.75rem;
+    border-radius: 0.75rem;
+    background-color: var(--accent);
+    padding: 0.75rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: white;
+    transition: all 0.2s ease-out;
     box-shadow: 0 1px 2px rgba(0,0,0,0.2);
   }
 
-  /* Button base */
-  .btn-primary {
-    @apply relative overflow-hidden min-h-touch rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all duration-200 ease-out;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-  }
-
   .btn-primary:hover {
-    @apply bg-primary-hover;
+    background-color: var(--accent-hover);
     box-shadow: 0 2px 8px rgba(37,99,235,0.25);
   }
 
@@ -94,11 +176,10 @@
   }
 
   .btn-primary:disabled {
-    @apply opacity-50;
+    opacity: 0.5;
     transform: none;
   }
 
-  /* Sheen effect — for primary CTAs */
   .btn-primary::after {
     content: '';
     position: absolute;
@@ -120,38 +201,59 @@
     transform: translateX(100%);
   }
 
-  /* Ghost button */
   .btn-ghost {
-    @apply min-h-touch rounded-xl px-3 py-2 text-sm font-medium transition-colors duration-200;
+    min-height: 2.75rem;
+    border-radius: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
   }
 
   .btn-ghost:hover {
-    @apply bg-white/5;
+    background-color: var(--accent-muted);
+    color: var(--text-primary);
   }
 
   .btn-ghost:active {
     transform: scale(0.97);
   }
 
-  /* Bottom nav */
+  /* Navigation */
   .nav-link {
-    @apply flex min-h-touch min-w-touch flex-1 flex-col items-center justify-center gap-1 text-xs font-medium transition-colors duration-200;
+    display: flex;
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: color 0.2s ease;
   }
 
   .nav-link-active {
-    @apply text-primary;
+    color: var(--accent);
   }
 
   .nav-link-inactive {
-    @apply text-text-muted hover:text-text-primary;
+    color: var(--text-muted);
   }
 
-  /* Skeleton loading */
+  .nav-link-inactive:hover {
+    color: var(--text-primary);
+  }
+
   .skeleton {
-    @apply animate-pulse rounded-lg bg-white/5;
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    border-radius: 0.5rem;
+    background-color: var(--accent-muted);
   }
 
-  /* Stagger animation utilities */
+  /* Stagger animation */
   .stagger-1 { animation-delay: 0ms; }
   .stagger-2 { animation-delay: 60ms; }
   .stagger-3 { animation-delay: 120ms; }

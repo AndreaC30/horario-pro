@@ -5,28 +5,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#070B1E",
+        background: "var(--bg)",
         surface: {
-          DEFAULT: "#0A194B",
-          elevated: "#0F2055",
+          DEFAULT: "var(--bg-surface)",
+          elevated: "var(--bg-surface-elevated)",
         },
         border: {
-          DEFAULT: "rgba(37,99,235,0.12)",
-          strong: "rgba(37,99,235,0.20)",
+          DEFAULT: "var(--border)",
+          strong: "var(--border-hover)",
         },
         primary: {
-          DEFAULT: "#2563EB",
-          hover: "#3B82F6",
+          DEFAULT: "var(--accent)",
+          hover: "var(--accent-hover)",
           foreground: "#ffffff",
-          muted: "rgba(37,99,235,0.10)",
+          muted: "var(--accent-muted)",
         },
-        success: "#22C55E",
-        warning: "#F59E0B",
-        danger: "#EF4444",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)",
         text: {
-          primary: "#F5F7FA",
-          secondary: "#94A3B8",
-          muted: "#64748B",
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          muted: "var(--text-muted)",
         },
       },
       maxWidth: {
@@ -42,9 +42,9 @@ export default {
         xl2: "14px",
       },
       boxShadow: {
-        card: "0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.24)",
-        elevated: "0 4px 6px rgba(0,0,0,0.32), 0 2px 4px rgba(0,0,0,0.16)",
-        fab: "0 8px 32px rgba(37,99,235,0.30)",
+        card: "var(--card-shadow)",
+        elevated: "var(--card-shadow-hover)",
+        fab: "var(--fab-shadow)",
       },
       fontFamily: {
         sans: [
@@ -70,11 +70,16 @@ export default {
           "0%": { transform: "translateX(-100%)" },
           "100%": { transform: "translateX(100%)" },
         },
+        "pulse-soft": {
+          "0%, 100%": { boxShadow: "var(--fab-shadow)" },
+          "50%": { boxShadow: "0 8px 40px rgba(37,99,235,0.50)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.5s ease-out both",
         "scale-in": "scale-in 0.3s ease-out both",
         sheen: "sheen 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+        "pulse-soft": "pulse-soft 3s ease-in-out infinite",
       },
     },
   },
