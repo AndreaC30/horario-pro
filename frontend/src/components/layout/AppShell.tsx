@@ -32,7 +32,7 @@ export function AppShell({ title, children }: AppShellProps) {
             <button
               type="button"
               className="min-h-touch min-w-touch flex items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary"
-              onClick={toggleTheme}
+              onClick={(e) => toggleTheme(e)}
               aria-label={theme === "dark" ? "Modo claro" : "Modo oscuro"}
             >
               {theme === "dark" ? <IoSunnyOutline className="h-5 w-5" /> : <IoMoonOutline className="h-5 w-5" />}
