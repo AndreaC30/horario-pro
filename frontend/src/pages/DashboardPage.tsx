@@ -85,10 +85,10 @@ export function DashboardPage() {
         {/* Stats grid */}
         <StaggeredGroup>
           <div className="grid grid-cols-2 gap-3">
-            <StatCard label="Hoy" value={formatHours(data.today.hours)} subvalue={formatMoney(data.today.estimated_money)} />
-            <StatCard label="Semana" value={formatHours(data.week.hours)} subvalue={formatMoney(data.week.estimated_money)} />
-            <StatCard label="Mes" value={formatHours(data.month.hours)} subvalue={formatMoney(data.month.estimated_money)} />
-            <StatCard label="Estimado hoy" value={formatMoney(data.today.estimated_money)} />
+            <StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" />
           </div>
         </StaggeredGroup>
 

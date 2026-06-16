@@ -7,7 +7,7 @@ const sizeMap = {
   sm: { img: "h-10 w-10", text: "text-lg" },
   md: { img: "h-14 w-14", text: "text-xl" },
   lg: { img: "h-24 w-24", text: "text-2xl" },
-  xl: { img: "mx-auto block w-[min(19rem,82vw)] max-w-[19rem] h-auto", text: "text-3xl" },
+  xl: { img: "mx-auto block w-[min(12rem,60vw)] max-w-[12rem] h-auto", text: "text-2xl" },
 };
 
 export function BrandLogo({ size = "md", showText = true }: BrandLogoProps) {
