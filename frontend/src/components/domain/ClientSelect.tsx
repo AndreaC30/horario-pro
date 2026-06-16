@@ -57,7 +57,7 @@ export function ClientSelect({ clients, value, onChange, error, onNewClient }: C
       ) : null}
       <select
         id="client_id"
-        className={`glass-input ${error ? "border-danger" : ""}`}
+        className={`input-field ${error ? "border-danger" : ""}`}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         required

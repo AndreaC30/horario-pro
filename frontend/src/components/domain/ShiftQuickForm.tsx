@@ -4,7 +4,7 @@ import { useOnlineStatus } from "../../hooks/useOnlineStatus";
 import type { Client, ShiftInput } from "../../types/api";
 import { OFFLINE_MESSAGE } from "../../utils/network";
 import { previewShift, validateShiftFields } from "../../utils/shiftForm";
-import { formatEstimatedPay } from "../../utils/money";
+import { formatEstimatedPay, formatMoney } from "../../utils/money";
 import {
   defaultShiftTimes,
   formatHours,
@@ -183,13 +183,24 @@ export function ShiftQuickForm({
 
       {preview ? (
         <p className="rounded-xl border border-border bg-white/[0.03] px-3 py-2 text-sm text-text-secondary">
-          Vista previa: <strong>{formatHours(preview.hours)}</strong>
-          {" · "}
-          <strong>
-            {preview.pay !== null
-              ? formatEstimatedPay(preview.pay, selectedClient?.hourly_rate)
-              : "sin tarifa"}
-          </strong>
+          {drivingEnabled ? (
+            <>
+              Conducción:{" "}
+              <strong>
+                {drivingNum > 0 ? formatMoney(drivingNum) : "indica el importe"}
+              </strong>
+            </>
+          ) : (
+            <>
+              Vista previa: <strong>{formatHours(preview.hours)}</strong>
+              {" · "}
+              <strong>
+                {preview.pay !== null
+                  ? formatEstimatedPay(preview.pay, selectedClient?.hourly_rate)
+                  : "sin tarifa"}
+              </strong>
+            </>
+          )}
         </p>
       ) : null}
 

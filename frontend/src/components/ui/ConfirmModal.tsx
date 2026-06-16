@@ -44,7 +44,7 @@ export function ConfirmModal({
       role="presentation"
     >
       <div
-        className="glass-card w-full max-w-[17rem] !p-4 sm:max-w-xs"
+        className="card-elevated w-full max-w-[17rem] !p-4 sm:max-w-xs"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"

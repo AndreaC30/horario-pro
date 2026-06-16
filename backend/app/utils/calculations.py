@@ -22,12 +22,11 @@ def estimated_pay(
     hourly_rate: Decimal | None,
     driving_extra: Decimal,
 ) -> Decimal | None:
+    if driving_extra > 0:
+        return driving_extra.quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
+
     if hourly_rate is None:
-        if driving_extra > 0:
-            return driving_extra.quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
         return None
 
     hours = worked_hours(start_time, end_time, break_minutes)
-    base = (hours * hourly_rate).quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
-    total = base + driving_extra
-    return total.quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)
+    return (hours * hourly_rate).quantize(MONEY_QUANT, rounding=ROUND_HALF_UP)

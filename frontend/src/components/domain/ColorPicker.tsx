@@ -1,6 +1,6 @@
 /** Paleta 2026 — alineada con docs/pliego/06-diseno-ui.md */
 const PRESET_COLORS = [
-  "#7C5CFF",
+  "#2563EB",
   "#06B6D4",
   "#22C55E",
   "#F97316",

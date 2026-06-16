@@ -3,7 +3,6 @@ import { Navigate, useNavigate } from "react-router-dom";
 
 import { BrandLogo } from "../components/ui/BrandLogo";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { Input } from "../components/ui/Input";
 import { Label } from "../components/ui/Label";
 import { useAuth } from "../hooks/useAuth";
@@ -48,12 +47,15 @@ export function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col justify-center px-4 py-8">
-      <div className="mb-10 flex w-full justify-center">
-        <BrandLogo size="xl" showText={false} />
+    <div className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-8">
+      <div className="mb-10 flex w-full flex-col items-center gap-3">
+        <BrandLogo size="xl" />
+        <h1 className="text-xl font-bold text-text-primary">WorkShift</h1>
       </div>
-      <Card>
-        <p className="mb-5 text-sm text-text-secondary">Inicia sesión para registrar tus jornadas.</p>
+
+      <div className="card">
+        <p className="mb-5 text-sm text-text-secondary">Registra tus jornadas y controla tus ingresos.</p>
+
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <Label htmlFor="email">Email</Label>
@@ -62,6 +64,7 @@ export function LoginPage() {
               type="email"
               autoComplete="email"
               required
+              placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -73,17 +76,24 @@ export function LoginPage() {
               type="password"
               autoComplete="current-password"
               required
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
           {!online ? <p className="text-sm text-warning">{OFFLINE_MESSAGE}</p> : null}
-          {error ? <p className="text-sm text-danger">{error}</p> : null}
+          {error ? (
+            <div className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm text-danger">
+              {error}
+            </div>
+          ) : null}
+
           <Button type="submit" className="w-full" loading={submitting} disabled={!online}>
             Entrar
           </Button>
         </form>
-      </Card>
+      </div>
     </div>
   );
 }

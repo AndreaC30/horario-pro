@@ -22,6 +22,21 @@ function todayLabel(): string {
   });
 }
 
+function StaggeredGroup({ children }: { children: React.ReactNode }) {
+  const childrenArr = React.Children.toArray(children);
+  return (
+    <>
+      {childrenArr.map((child, i) => (
+        <div key={i} className={`animate-fade-up`} style={{ animationDelay: `${i * 60}ms` }}>
+          {child}
+        </div>
+      ))}
+    </>
+  );
+}
+
+import React from "react";
+
 export function DashboardPage() {
   const { data, loading, error, refresh } = useDashboard(5);
 
@@ -29,7 +44,7 @@ export function DashboardPage() {
     return (
       <div className="space-y-4">
         <SkeletonBlock className="h-16" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-2 gap-3">
           <SkeletonBlock className="h-24" />
           <SkeletonBlock className="h-24" />
           <SkeletonBlock className="h-24" />
@@ -48,61 +63,78 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="space-y-4 pb-20">
-        <header className="space-y-1">
-          <p className="text-sm text-text-secondary">Hola</p>
+      <div className="space-y-5 pb-20">
+        {/* Header */}
+        <header className="animate-fade-up space-y-1">
+          <p className="text-sm text-text-muted">Hola</p>
           <h2 className="text-2xl font-bold tracking-tight text-text-primary capitalize">{todayLabel()}</h2>
           <p className="text-sm text-text-secondary">
             Hoy: <span className="font-semibold text-text-primary">{formatHours(data.today.hours)}</span>
             {" · "}
-            {formatMoney(data.today.estimated_money)}
+            <span className="font-semibold text-text-primary">{formatMoney(data.today.estimated_money)}</span>
           </p>
         </header>
 
+        {/* Desktop CTA */}
         <div className="hidden sm:block">
           <Link to="/jornada/nueva" className="block">
             <Button className="w-full">+ Nueva jornada</Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
-          <StatCard label="Hoy" value={formatHours(data.today.hours)} subvalue={formatMoney(data.today.estimated_money)} />
-          <StatCard label="Semana" value={formatHours(data.week.hours)} subvalue={formatMoney(data.week.estimated_money)} />
-          <StatCard label="Mes" value={formatHours(data.month.hours)} subvalue={formatMoney(data.month.estimated_money)} />
-          <StatCard label="Estimado hoy" value={formatMoney(data.today.estimated_money)} />
+        {/* Stats grid */}
+        <StaggeredGroup>
+          <div className="grid grid-cols-2 gap-3">
+            <StatCard label="Hoy" value={formatHours(data.today.hours)} subvalue={formatMoney(data.today.estimated_money)} />
+            <StatCard label="Semana" value={formatHours(data.week.hours)} subvalue={formatMoney(data.week.estimated_money)} />
+            <StatCard label="Mes" value={formatHours(data.month.hours)} subvalue={formatMoney(data.month.estimated_money)} />
+            <StatCard label="Estimado hoy" value={formatMoney(data.today.estimated_money)} />
+          </div>
+        </StaggeredGroup>
+
+        {/* Client breakdown */}
+        <div className="animate-fade-up stagger-2">
+          <ClientEarningsBreakdown
+            week={data.by_client_week ?? []}
+            month={data.by_client_month ?? []}
+          />
         </div>
 
-        <ClientEarningsBreakdown
-          week={data.by_client_week ?? []}
-          month={data.by_client_month ?? []}
-        />
+        {/* Driving extras */}
+        <div className="animate-fade-up stagger-3">
+          <DrivingExtrasSummary
+            today={data.today.driving_extras}
+            week={data.week.driving_extras}
+            month={data.month.driving_extras}
+          />
+        </div>
 
-        <DrivingExtrasSummary
-          today={data.today.driving_extras}
-          week={data.week.driving_extras}
-          month={data.month.driving_extras}
-        />
-
-        <Card title="Últimas jornadas">
-          {isEmpty ? (
-            <EmptyState
-              title="Aún no hay jornadas"
-              description="Crea un cliente y registra tu primera jornada."
-              action={
-                <Link to="/jornada/nueva">
-                  <Button className="w-full">+ Nueva jornada</Button>
+        {/* Recent shifts */}
+        <div className="animate-fade-up stagger-4">
+          <Card title="Últimas jornadas">
+            {isEmpty ? (
+              <EmptyState
+                title="Aún no hay jornadas"
+                description="Crea un cliente y registra tu primera jornada."
+                action={
+                  <Link to="/jornada/nueva">
+                    <Button className="w-full">+ Nueva jornada</Button>
+                  </Link>
+                }
+              />
+            ) : (
+              <>
+                <ShiftList shifts={data.recent_shifts} />
+                <Link
+                  to="/historial"
+                  className="mt-3 block text-center text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+                >
+                  Ver historial completo
                 </Link>
-              }
-            />
-          ) : (
-            <>
-              <ShiftList shifts={data.recent_shifts} />
-              <Link to="/historial" className="mt-3 block text-center text-sm font-medium text-primary hover:text-primary-hover">
-                Ver historial completo
-              </Link>
-            </>
-          )}
-        </Card>
+              </>
+            )}
+          </Card>
+        </div>
       </div>
 
       <Fab to="/jornada/nueva" label="+ Nueva jornada" />

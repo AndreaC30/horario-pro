@@ -6,16 +6,14 @@ type FabProps = {
   label: string;
 };
 
-/** FAB «+ Nueva jornada» — visible sobre la bottom nav en móvil */
 export function Fab({ to, label }: FabProps) {
   return (
     <Link
       to={to}
-      className="fixed right-4 z-30 flex min-h-touch items-center gap-2 rounded-full bg-primary px-5 py-3.5 text-sm font-semibold text-white shadow-fab transition duration-200 hover:bg-primary-hover hover:-translate-y-0.5 active:translate-y-0 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] md:bottom-6"
+      className="fixed bottom-20 right-4 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-fab transition-all duration-200 ease-out hover:bg-primary-hover hover:shadow-[0_8px_40px_rgba(37,99,235,0.45)] active:scale-95"
       aria-label={label}
     >
-      <IoAdd className="h-5 w-5 shrink-0" aria-hidden />
-      <span className="max-[380px]:sr-only">{label.replace("+ ", "")}</span>
+      <IoAdd className="h-6 w-6" />
     </Link>
   );
 }
