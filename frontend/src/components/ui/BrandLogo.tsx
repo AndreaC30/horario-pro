@@ -3,24 +3,32 @@ type BrandLogoProps = {
   showText?: boolean;
 };
 
-const sizes = {
-  sm: "h-8 w-8",
-  md: "h-10 w-10",
-  lg: "h-12 w-12",
-  xl: "h-16 w-16",
+const sizeMap = {
+  sm: { img: "h-10 w-10", text: "text-lg" },
+  md: { img: "h-14 w-14", text: "text-xl" },
+  lg: { img: "h-24 w-24", text: "text-2xl" },
+  xl: { img: "mx-auto block w-[min(19rem,82vw)] max-w-[19rem] h-auto", text: "text-3xl" },
 };
 
-export function BrandLogo({ size = "md", showText = false }: BrandLogoProps) {
+export function BrandLogo({ size = "md", showText = true }: BrandLogoProps) {
+  const s = sizeMap[size];
+  const alt = showText ? "" : "WorkShift";
+
   return (
-    <div className="flex items-center gap-3">
-      <div className={`${sizes[size]} flex items-center justify-center rounded-xl bg-primary text-white font-bold shadow-fab`}>
-        <svg className="h-5/6 w-5/6" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="16" cy="16" r="14" stroke="currentColor" strokeWidth="2.5" fill="none" />
-          <path d="M10 16h12M16 10v12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M8 8l16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
-        </svg>
-      </div>
-      {showText ? <span className="text-lg font-bold text-text-primary">WorkShift</span> : null}
+    <div className="flex w-full flex-col items-center gap-3 text-center">
+      <img
+        src="/brand-logo.png"
+        alt={alt}
+        className={s.img}
+        width={512}
+        height={512}
+        decoding="async"
+      />
+      {showText ? (
+        <p className={`${s.text} font-bold tracking-tight text-text-primary`}>
+          Work<span className="text-primary">Shift</span>
+        </p>
+      ) : null}
     </div>
   );
 }

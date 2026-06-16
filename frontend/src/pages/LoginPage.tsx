@@ -49,8 +49,7 @@ export function LoginPage() {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-8">
       <div className="mb-10 flex w-full flex-col items-center gap-3">
-        <BrandLogo size="xl" />
-        <h1 className="text-xl font-bold text-text-primary">WorkShift</h1>
+        <BrandLogo size="xl" showText={false} />
       </div>
 
       <div className="card">
