@@ -20,8 +20,8 @@ export default defineConfig({
         name: "WorkShift",
         short_name: "WorkShift",
         description: "Control de horas laborales",
-        theme_color: "#0B1020",
-        background_color: "#0B1020",
+        theme_color: "#070B1E",
+        background_color: "#070B1E",
         display: "standalone",
         orientation: "portrait",
         scope: "/",
@@ -55,9 +55,9 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Evita fallo de terser en algunos entornos (CI/sandbox); SW sigue siendo válido.
-        mode: "development",
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        skipWaiting: true,
+        clientsClaim: true,
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: [
