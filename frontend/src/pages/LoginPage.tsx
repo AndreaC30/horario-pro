@@ -2,6 +2,7 @@ import { FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import { BrandLogo } from "../components/ui/BrandLogo";
+import { AuroraText } from "../components/effects/AuroraText";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Label } from "../components/ui/Label";
@@ -50,6 +51,9 @@ export function LoginPage() {
     <div className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-8">
       <div className="mb-10 flex w-full flex-col items-center gap-3">
         <BrandLogo size="xl" showText={false} />
+        <h1 className="text-3xl font-extrabold tracking-tight">
+          <AuroraText>WorkShift</AuroraText>
+        </h1>
       </div>
 
       <div className="card">
