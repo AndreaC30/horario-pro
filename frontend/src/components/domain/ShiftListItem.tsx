@@ -8,9 +8,11 @@ type ShiftListItemProps = {
   shift: Shift;
   showDelete?: boolean;
   onDelete?: (shift: Shift) => void;
+  /** When inside a Card, use dividers instead of full borders */
+  embedded?: boolean;
 };
 
-export function ShiftListItem({ shift, showDelete, onDelete }: ShiftListItemProps) {
+export function ShiftListItem({ shift, showDelete, onDelete, embedded = false }: ShiftListItemProps) {
   const date = new Date(shift.start_time).toLocaleDateString("es-ES", {
     weekday: "short",
     day: "numeric",
@@ -23,28 +25,32 @@ export function ShiftListItem({ shift, showDelete, onDelete }: ShiftListItemProp
     <div className="flex items-stretch gap-1">
       <Link
         to={`/jornada/${shift.id}`}
-        className="list-item flex-1"
+        className={`flex min-h-[2.75rem] flex-1 items-center gap-3 rounded-xl px-2 py-2 transition-colors ${
+          embedded
+            ? "hover:bg-accent-muted/50"
+            : "list-item"
+        }`}
       >
         <span
-          className="h-10 w-1 shrink-0 rounded-full"
+          className="h-9 w-1 shrink-0 rounded-full"
           style={{ backgroundColor: shift.client.color }}
           aria-hidden
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-text-primary">{shift.client.name}</p>
+          <p className="truncate text-sm font-medium text-text-primary">{shift.client.name}</p>
           <p className="text-xs text-text-secondary">
             {date} · {formatHours(shift.worked_hours)}
             {drivingLabel}
           </p>
         </div>
-        <p className="text-sm font-semibold text-text-primary">
+        <p className="text-sm font-semibold tabular-nums text-text-primary">
           {formatEstimatedPay(shift.estimated_pay, shift.client.hourly_rate)}
         </p>
       </Link>
       {showDelete && onDelete ? (
         <button
           type="button"
-          className="min-h-touch min-w-[2.75rem] rounded-xl border border-border bg-white/[0.02] px-2 text-sm text-danger"
+          className="min-h-touch min-w-[2.75rem] rounded-xl border border-border bg-white/[0.02] px-2 text-sm text-danger hover:bg-danger/10 transition-colors"
           aria-label={`Eliminar jornada de ${shift.client.name}`}
           onClick={() => onDelete(shift)}
         >

@@ -75,6 +75,7 @@ export function HistoryPage() {
             emptyTitle="Aún no hay jornadas"
             emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
             showDelete
+            embedded
             onDelete={(shift) => {
               setDeleteError(null);
               setToDelete(shift);
