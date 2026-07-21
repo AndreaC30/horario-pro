@@ -1,8 +1,12 @@
 import type { DashboardSummary, Shift, ShiftInput } from "../types/api";
 import { apiRequest } from "./apiClient";
 
-export function getDashboardSummary(recentLimit = 5) {
-  return apiRequest<DashboardSummary>(`/api/v1/dashboard/summary?recent_limit=${recentLimit}`);
+export function getDashboardSummary(recentLimit = 5, year?: number, month?: number) {
+  const params = new URLSearchParams();
+  params.set("recent_limit", String(recentLimit));
+  if (year !== undefined) params.set("year", String(year));
+  if (month !== undefined) params.set("month", String(month));
+  return apiRequest<DashboardSummary>(`/api/v1/dashboard/summary?${params.toString()}`);
 }
 
 export function listShifts(params?: { from?: string; to?: string; client_id?: number; limit?: number }) {
