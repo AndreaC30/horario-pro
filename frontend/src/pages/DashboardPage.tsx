@@ -5,8 +5,6 @@ import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBrea
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
-import { ShineBorder } from "../components/effects/ShineBorder";
-import { Marquee } from "../components/effects/Marquee";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
@@ -17,7 +15,7 @@ import { useDashboard } from "../hooks/useDashboard";
 import { formatMoney } from "../utils/money";
 import { formatHours } from "../utils/time";
 
-import { PiHandWaving, PiRocketLaunch, PiCaretLeft, PiCaretRight } from "react-icons/pi";
+import { PiHandWaving, PiCaretLeft, PiCaretRight } from "react-icons/pi";
 import React from "react";
 
 function todayLabel(): string {
@@ -45,7 +43,7 @@ function StaggeredGroup({ children }: { children: React.ReactNode }) {
   return (
     <>
       {childrenArr.map((child, i) => (
-        <div key={i} className={`animate-fade-up`} style={{ animationDelay: `${i * 60}ms` }}>
+        <div key={i} className={`animate-fade-up`} style={{ animationDelay: `${i * 50}ms` }}>
           {child}
         </div>
       ))}
@@ -56,7 +54,7 @@ function StaggeredGroup({ children }: { children: React.ReactNode }) {
 export function DashboardPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
-  const [month, setMonth] = useState(now.getMonth() + 1); // 1-indexed
+  const [month, setMonth] = useState(now.getMonth() + 1);
   const isCurrentMonth = isCurrentOrFuture(year, month);
 
   const { data, loading, error, refresh } = useDashboard(5, year, month);
@@ -143,19 +141,8 @@ export function DashboardPage() {
           </button>
         </div>
 
-        {/* Marquee welcome */}
-        <div className="animate-fade-up stagger-2">
-          <Marquee speed="slower" pauseOnHover>
-            <span className="mx-4 inline-flex items-center gap-1.5 text-sm font-medium text-text-secondary">
-              <PiHandWaving className="inline shrink-0" /> Bienvenida a WorkShift · Registra tus jornadas fácilmente · Controla tus ingresos · 
-              {Number(data.month.hours) > 0 ? ` Este mes llevas ${formatHours(data.month.hours)} · ` : " "}
-              ¡A por ello! <PiRocketLaunch className="inline shrink-0" />
-            </span>
-          </Marquee>
-        </div>
-
         {/* Desktop CTA */}
-        <div className="hidden sm:block">
+        <div className="animate-fade-up stagger-2 hidden sm:block">
           <Link to="/jornada/nueva" className="block">
             <Button className="w-full">+ Nueva jornada</Button>
           </Link>
@@ -164,15 +151,29 @@ export function DashboardPage() {
         {/* Stats grid */}
         <StaggeredGroup>
           <div className="grid grid-cols-2 gap-3">
-            <ShineBorder speed="slow"><StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" /></ShineBorder>
-            <ShineBorder speed="slow"><StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" /></ShineBorder>
-            <ShineBorder speed="slow"><StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" /></ShineBorder>
-            <ShineBorder speed="slow"><StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" subvalue={parseFloat(data.today.hours) || 0} subSuffix="h" /></ShineBorder>
+            <StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" />
+            <StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" subvalue={parseFloat(data.today.hours) || 0} subSuffix="h" />
           </div>
         </StaggeredGroup>
 
+        {/* Welcome banner — static, no marquee */}
+        {Number(data.month.hours) > 0 ? (
+          <div className="animate-fade-up stagger-3">
+            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary">
+              <PiHandWaving className="shrink-0 text-base" />
+              <span>
+                Este mes llevas <span className="font-semibold text-text-primary">{formatHours(data.month.hours)}</span>
+                {" · "}
+                <span className="font-semibold text-text-primary">{formatMoney(data.month.estimated_money)}</span>
+              </span>
+            </div>
+          </div>
+        ) : null}
+
         {/* Client breakdown */}
-        <div className="animate-fade-up stagger-3">
+        <div className="animate-fade-up stagger-4">
           <ClientEarningsBreakdown
             week={data.by_client_week ?? []}
             month={data.by_client_month ?? []}
@@ -180,7 +181,7 @@ export function DashboardPage() {
         </div>
 
         {/* Driving extras */}
-        <div className="animate-fade-up stagger-4">
+        <div className="animate-fade-up stagger-5">
           <DrivingExtrasSummary
             today={data.today.driving_extras}
             week={data.week.driving_extras}
@@ -189,7 +190,7 @@ export function DashboardPage() {
         </div>
 
         {/* Recent shifts */}
-        <div className="animate-fade-up stagger-5">
+        <div className="animate-fade-up stagger-6">
           <Card title="Últimas jornadas">
             {isEmpty ? (
               <EmptyState
@@ -203,7 +204,7 @@ export function DashboardPage() {
               />
             ) : (
               <>
-                <ShiftList shifts={data.recent_shifts} />
+                <ShiftList shifts={data.recent_shifts} embedded />
                 <Link
                   to="/historial"
                   className="mt-3 block text-center text-sm font-medium text-primary hover:text-primary-hover transition-colors"

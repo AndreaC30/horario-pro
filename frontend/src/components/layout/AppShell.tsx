@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
 
-import { AnimatedGradientText } from "../effects/AnimatedGradientText";
 import { useAuth } from "../../hooks/useAuth";
 import { useTheme } from "../../hooks/useTheme";
 import { Button } from "../ui/Button";
@@ -28,10 +27,8 @@ export function AppShell({ title, children }: AppShellProps) {
     <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col pb-[calc(4.75rem+env(safe-area-inset-bottom))]">
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 px-4 py-3 backdrop-blur-md supports-[padding:max(0px)]:pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center justify-between gap-2">
-          <h1 className="text-lg font-bold tracking-tight">
-            <AnimatedGradientText speed="slow">
-              {title}
-            </AnimatedGradientText>
+          <h1 className="text-lg font-bold tracking-tight text-primary">
+            {title}
           </h1>
           <div className="flex items-center gap-1">
             <button

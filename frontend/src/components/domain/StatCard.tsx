@@ -21,9 +21,9 @@ export function StatCard({ label, value, suffix = "h", subvalue, subSuffix = "â‚
   return (
     <div
       id={id}
-      className={`stat-card group cursor-default transition-shadow duration-300 hover:shadow-[0_4px_20px_rgba(37,99,235,0.15)] ${className}`.trim()}
+      className={`stat-card group cursor-default ${className}`.trim()}
     >
-      <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-widest text-text-muted group-hover:text-primary/70 transition-colors duration-300">
+      <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-widest text-text-muted group-hover:text-primary/70 transition-colors duration-200">
         {label}
       </p>
       <p className="text-xl font-bold tabular-nums text-text-primary">

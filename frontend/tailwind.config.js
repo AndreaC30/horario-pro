@@ -43,7 +43,7 @@ export default {
       },
       boxShadow: {
         card: "var(--card-shadow)",
-        elevated: "var(--card-shadow-hover)",
+        elevated: "var(--card-shadow-elevated)",
         fab: "var(--fab-shadow)",
       },
       fontFamily: {

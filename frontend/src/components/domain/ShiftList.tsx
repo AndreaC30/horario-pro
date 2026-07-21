@@ -14,6 +14,8 @@ type ShiftListProps = {
   emptyAction?: ReactNode;
   showDelete?: boolean;
   onDelete?: (shift: Shift) => void;
+  /** Use separators instead of card-style borders (for use inside Card) */
+  embedded?: boolean;
 };
 
 const container = {
@@ -36,6 +38,7 @@ export function ShiftList({
   emptyAction,
   showDelete = false,
   onDelete,
+  embedded = false,
 }: ShiftListProps) {
   if (shifts.length === 0) {
     return (
@@ -55,14 +58,23 @@ export function ShiftList({
 
   return (
     <motion.ul
-      className="space-y-2"
+      className={embedded ? "divide-y divide-border" : "space-y-2"}
       variants={container}
       initial="hidden"
       animate="show"
     >
       {shifts.map((shift) => (
-        <motion.li key={shift.id} variants={item}>
-          <ShiftListItem shift={shift} showDelete={showDelete} onDelete={onDelete} />
+        <motion.li
+          key={shift.id}
+          variants={item}
+          className={embedded ? "py-1.5 first:pt-0 last:pb-0" : ""}
+        >
+          <ShiftListItem
+            shift={shift}
+            showDelete={showDelete}
+            onDelete={onDelete}
+            embedded={embedded}
+          />
         </motion.li>
       ))}
     </motion.ul>

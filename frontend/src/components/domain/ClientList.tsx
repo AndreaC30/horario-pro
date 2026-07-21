@@ -1,6 +1,5 @@
 import type { Client } from "../../types/api";
 import { formatMoney } from "../../utils/money";
-import { Button } from "../ui/Button";
 import { EmptyState } from "../ui/EmptyState";
 
 type ClientListProps = {
@@ -15,26 +14,34 @@ export function ClientList({ clients, onEdit, onDelete }: ClientListProps) {
   }
 
   return (
-    <ul className="space-y-2">
+    <ul className="divide-y divide-border">
       {clients.map((client) => (
         <li
           key={client.id}
-          className="list-item"
+          className="flex min-h-[2.75rem] flex-wrap items-center gap-3 px-2 py-2.5 transition-colors hover:bg-accent-muted/50 sm:flex-nowrap"
         >
           <span className="h-8 w-8 shrink-0 rounded-full border border-border" style={{ backgroundColor: client.color }} />
           <div className="min-w-0 flex-1">
-            <p className="font-medium text-text-primary">{client.name}</p>
+            <p className="text-sm font-medium text-text-primary">{client.name}</p>
             <p className="text-xs text-text-secondary">
               {client.hourly_rate ? `${formatMoney(client.hourly_rate)}/h` : "Sin tarifa"}
             </p>
           </div>
           <div className="flex w-full gap-1 sm:w-auto">
-            <Button variant="ghost" type="button" onClick={() => onEdit(client)}>
+            <button
+              type="button"
+              className="min-h-touch rounded-lg px-2 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
+              onClick={() => onEdit(client)}
+            >
               Editar
-            </Button>
-            <Button variant="ghost" type="button" className="text-danger" onClick={() => onDelete(client)}>
+            </button>
+            <button
+              type="button"
+              className="min-h-touch rounded-lg px-2 text-sm font-medium text-danger hover:bg-danger/10 transition-colors"
+              onClick={() => onDelete(client)}
+            >
               Borrar
-            </Button>
+            </button>
           </div>
         </li>
       ))}
