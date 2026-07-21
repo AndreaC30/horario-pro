@@ -29,7 +29,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 16, scale: 0.97 }}
             transition={{ type: "spring", duration: 0.35, bounce: 0.1 }}
-            className="glass-card w-full max-w-app !p-4"
+            className="card-elevated w-full max-w-app !p-4"
             role="dialog"
             aria-modal="true"
             aria-labelledby="modal-title"

@@ -19,7 +19,7 @@ export function ClientList({ clients, onEdit, onDelete }: ClientListProps) {
       {clients.map((client) => (
         <li
           key={client.id}
-          className="flex min-h-touch flex-wrap items-center gap-3 rounded-xl border border-border bg-white/[0.02] px-3 py-3 sm:flex-nowrap"
+          className="list-item"
         >
           <span className="h-8 w-8 shrink-0 rounded-full border border-border" style={{ backgroundColor: client.color }} />
           <div className="min-w-0 flex-1">

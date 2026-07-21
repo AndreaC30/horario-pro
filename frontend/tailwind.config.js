@@ -5,27 +5,28 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "#0B1020",
+        background: "var(--bg)",
         surface: {
-          DEFAULT: "#12182B",
-          elevated: "#161E36",
+          DEFAULT: "var(--bg-surface)",
+          elevated: "var(--bg-surface-elevated)",
         },
         border: {
-          DEFAULT: "rgba(255,255,255,0.06)",
-          strong: "rgba(255,255,255,0.10)",
+          DEFAULT: "var(--border)",
+          strong: "var(--border-hover)",
         },
         primary: {
-          DEFAULT: "#7C5CFF",
-          hover: "#9277FF",
+          DEFAULT: "var(--accent)",
+          hover: "var(--accent-hover)",
           foreground: "#ffffff",
-          muted: "rgba(124,92,255,0.10)",
+          muted: "var(--accent-muted)",
         },
-        success: "#22C55E",
-        warning: "#F59E0B",
-        danger: "#EF4444",
+        success: "var(--success)",
+        warning: "var(--warning)",
+        danger: "var(--danger)",
         text: {
-          primary: "#F5F7FA",
-          secondary: "#94A3B8",
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          muted: "var(--text-muted)",
         },
       },
       maxWidth: {
@@ -38,15 +39,16 @@ export default {
         touch: "2.75rem",
       },
       borderRadius: {
-        xl2: "16px",
+        xl2: "14px",
       },
       boxShadow: {
-        card: "0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.3)",
-        fab: "0 8px 32px rgba(124,92,255,0.35)",
+        card: "var(--card-shadow)",
+        elevated: "var(--card-shadow-hover)",
+        fab: "var(--fab-shadow)",
       },
       fontFamily: {
         sans: [
-          "Geist",
+          "Inter",
           "ui-sans-serif",
           "system-ui",
           "-apple-system",
@@ -54,6 +56,30 @@ export default {
           "Roboto",
           "sans-serif",
         ],
+      },
+      keyframes: {
+        "fade-up": {
+          "0%": { opacity: "0", transform: "translateY(12px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        sheen: {
+          "0%": { transform: "translateX(-100%)" },
+          "100%": { transform: "translateX(100%)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { boxShadow: "var(--fab-shadow)" },
+          "50%": { boxShadow: "0 8px 40px rgba(37,99,235,0.50)" },
+        },
+      },
+      animation: {
+        "fade-up": "fade-up 0.5s ease-out both",
+        "scale-in": "scale-in 0.3s ease-out both",
+        sheen: "sheen 0.7s cubic-bezier(0.16, 1, 0.3, 1)",
+        "pulse-soft": "pulse-soft 3s ease-in-out infinite",
       },
     },
   },

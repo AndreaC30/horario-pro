@@ -2,16 +2,21 @@ import type { ReactNode } from "react";
 
 type EmptyStateProps = {
   title: string;
-  description?: string;
+  description: string;
   action?: ReactNode;
 };
 
 export function EmptyState({ title, description, action }: EmptyStateProps) {
   return (
-    <div className="rounded-2xl border border-dashed border-border bg-white/[0.02] px-4 py-8 text-center">
-      <p className="font-medium text-text-primary">{title}</p>
-      {description ? <p className="mt-1 text-sm text-text-secondary">{description}</p> : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+    <div className="flex flex-col items-center justify-center py-12 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary-muted">
+        <svg className="h-8 w-8 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h3 className="mb-1 text-lg font-semibold text-text-primary">{title}</h3>
+      <p className="mb-6 max-w-xs text-sm text-text-secondary">{description}</p>
+      {action}
     </div>
   );
 }

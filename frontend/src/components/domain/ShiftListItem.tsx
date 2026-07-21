@@ -23,7 +23,7 @@ export function ShiftListItem({ shift, showDelete, onDelete }: ShiftListItemProp
     <div className="flex items-stretch gap-1">
       <Link
         to={`/jornada/${shift.id}`}
-        className="flex min-h-touch flex-1 items-center gap-3 rounded-xl border border-border bg-white/[0.02] px-3 py-3 transition hover:border-primary/50 hover:bg-white/[0.04]"
+        className="list-item flex-1"
       >
         <span
           className="h-10 w-1 shrink-0 rounded-full"

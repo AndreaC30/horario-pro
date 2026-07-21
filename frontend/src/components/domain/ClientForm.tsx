@@ -16,7 +16,7 @@ type ClientFormProps = {
 
 export function ClientForm({ initial, onSubmit, onCancel }: ClientFormProps) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [color, setColor] = useState(initial?.color ?? "#7C5CFF");
+  const [color, setColor] = useState(initial?.color ?? "#2563EB");
   const [hourlyRate, setHourlyRate] = useState(initial?.hourly_rate ?? "");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

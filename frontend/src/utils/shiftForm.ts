@@ -56,10 +56,10 @@ export function previewShift(
 
   const rate = client?.hourly_rate ? Number(client.hourly_rate) : null;
   let pay: number | null = null;
-  if (rate !== null && !Number.isNaN(rate)) {
-    pay = Math.round((hours * rate + drivingExtra) * 100) / 100;
-  } else if (drivingExtra > 0) {
+  if (drivingExtra > 0) {
     pay = drivingExtra;
+  } else if (rate !== null && !Number.isNaN(rate)) {
+    pay = Math.round(hours * rate * 100) / 100;
   }
 
   return { hours, pay };

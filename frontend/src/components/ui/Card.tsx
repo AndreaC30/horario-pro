@@ -1,19 +1,20 @@
-import type { ReactNode } from "react";
+import type { HTMLAttributes } from "react";
+import { ShineBorder } from "../effects/ShineBorder";
 
-type CardProps = {
-  id?: string;
+type CardProps = HTMLAttributes<HTMLElement> & {
   title?: string;
-  children: ReactNode;
-  className?: string;
+  elevated?: boolean;
 };
 
-export function Card({ id, title, children, className = "" }: CardProps) {
+export function Card({ title, children, className = "", elevated = false, ...props }: CardProps) {
   return (
-    <section id={id} className={`glass-card ${className}`}>
-      {title ? (
-        <h2 className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-secondary">{title}</h2>
-      ) : null}
-      {children}
-    </section>
+    <ShineBorder speed="slow">
+      <section className={`${elevated ? "card-elevated" : "card"} ${className}`.trim()} {...props}>
+        {title ? (
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-wider text-text-muted">{title}</h2>
+        ) : null}
+        {children}
+      </section>
+    </ShineBorder>
   );
 }
