@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react";
+import { TYPE_CARD_TITLE } from "../../lib/typography";
 import { ShineBorder } from "../effects/ShineBorder";
 
 type CardProps = HTMLAttributes<HTMLElement> & {
@@ -13,9 +14,7 @@ export function Card({ title, children, className = "", elevated = false, accent
 
   const content = (
     <section className={`${variantClass} ${className}`.trim()} {...props}>
-      {title ? (
-        <h2 className="mb-3 text-[0.6875rem] font-semibold uppercase tracking-wider text-text-muted">{title}</h2>
-      ) : null}
+      {title ? <h2 className={TYPE_CARD_TITLE}>{title}</h2> : null}
       {children}
     </section>
   );

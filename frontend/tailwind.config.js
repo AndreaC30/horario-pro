@@ -17,7 +17,7 @@ export default {
         primary: {
           DEFAULT: "var(--accent)",
           hover: "var(--accent-hover)",
-          foreground: "#ffffff",
+          foreground: "var(--accent-ink)",
           muted: "var(--accent-muted)",
         },
         success: "var(--success)",
@@ -48,6 +48,7 @@ export default {
       },
       fontFamily: {
         sans: [
+          "var(--font-sans)",
           "Inter",
           "ui-sans-serif",
           "system-ui",
@@ -55,6 +56,19 @@ export default {
           "Segoe UI",
           "Roboto",
           "sans-serif",
+        ],
+        display: [
+          "var(--font-display)",
+          "Space Grotesk",
+          "Inter",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          "var(--font-mono)",
+          "JetBrains Mono",
+          "ui-monospace",
+          "monospace",
         ],
       },
       keyframes: {

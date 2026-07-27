@@ -12,23 +12,24 @@ const tabs: { to: string; label: string; Icon: IconType }[] = [
 export function BottomNav() {
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-surface/95 backdrop-blur-md supports-[padding:max(0px)]:pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-[var(--bg-surface)]/95 backdrop-blur-md supports-[padding:max(0px)]:pb-[env(safe-area-inset-bottom)]"
       aria-label="Navegación principal"
     >
-      <div className="mx-auto flex max-w-app">
+      <ul className="mx-auto flex max-w-app">
         {tabs.map(({ to, label, Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              `nav-link ${isActive ? "nav-link-active" : "nav-link-inactive"}`
-            }
-          >
-            <Icon className="h-5 w-5" aria-hidden />
-            <span>{label}</span>
-          </NavLink>
+          <li key={to} className="flex flex-1">
+            <NavLink
+              to={to}
+              className={({ isActive }) =>
+                `nav-link w-full ${isActive ? "nav-link-active" : "nav-link-inactive"}`
+              }
+            >
+              <Icon className="h-5 w-5" aria-hidden />
+              <span className="font-mono text-[0.65rem] font-medium tracking-wide">{label}</span>
+            </NavLink>
+          </li>
         ))}
-      </div>
+      </ul>
     </nav>
   );
 }

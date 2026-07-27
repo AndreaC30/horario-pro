@@ -21,7 +21,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--bg)]/70 p-4 backdrop-blur-sm sm:items-center"
           onClick={onClose}
         >
           <motion.div
@@ -36,7 +36,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between gap-2">
-              <h2 id="modal-title" className="text-lg font-bold text-text-primary">
+              <h2 id="modal-title" className="font-display text-lg font-semibold tracking-tight text-text-primary">
                 {title}
               </h2>
               <Button variant="ghost" onClick={onClose} aria-label="Cerrar">

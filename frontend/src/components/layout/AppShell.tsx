@@ -24,16 +24,16 @@ export function AppShell({ title, children }: AppShellProps) {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col pb-[calc(4.75rem+env(safe-area-inset-bottom))]">
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 px-4 py-3 backdrop-blur-md supports-[padding:max(0px)]:pt-[max(0.75rem,env(safe-area-inset-top))]">
+    <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-background pb-[calc(4.75rem+env(safe-area-inset-bottom))]">
+      <header className="sticky top-0 z-10 border-b border-border bg-background/90 px-4 py-3 backdrop-blur-md supports-[padding:max(0px)]:pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex items-center justify-between gap-2">
-          <h1 className="text-lg font-bold tracking-tight text-primary">
+          <h1 className="font-display text-lg font-semibold tracking-tight text-primary">
             {title}
           </h1>
           <div className="flex items-center gap-1">
             <button
               type="button"
-              className="min-h-touch min-w-touch flex items-center justify-center rounded-lg text-text-muted transition-colors hover:text-text-primary"
+              className="min-h-touch min-w-touch flex items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary"
               onClick={() => toggleTheme()}
               aria-label={theme === "dark" ? "Modo claro" : "Modo oscuro"}
             >
@@ -46,7 +46,7 @@ export function AppShell({ title, children }: AppShellProps) {
         </div>
       </header>
       <OfflineBanner />
-      <main className="flex-1 px-4 py-4 sm:px-5">{children}</main>
+      <main className="flex-1 space-y-4 px-4 py-4 sm:px-5">{children}</main>
       <BottomNav />
     </div>
   );

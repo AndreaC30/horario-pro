@@ -1,4 +1,5 @@
 import { useMagnetic } from "../../hooks/useMagnetic";
+import { TYPE_EYEBROW } from "../../lib/typography";
 import { AnimatedCounter } from "./AnimatedCounter";
 
 type StatCardProps = {
@@ -23,14 +24,14 @@ export function StatCard({ label, value, suffix = "h", subvalue, subSuffix = "â‚
       id={id}
       className={`stat-card group cursor-default ${className}`.trim()}
     >
-      <p className="mb-1 text-[0.6875rem] font-semibold uppercase tracking-widest text-text-muted group-hover:text-primary/70 transition-colors duration-200">
+      <p className={`${TYPE_EYEBROW} mb-1 group-hover:text-primary/70 transition-colors duration-200`}>
         {label}
       </p>
-      <p className="text-xl font-bold tabular-nums text-text-primary">
+      <p className="font-display text-xl font-semibold tabular-nums tracking-tight text-text-primary">
         <AnimatedCounter value={Math.round(value * 10) / 10} suffix={suffix} />
       </p>
       {subvalue !== undefined ? (
-        <p className="mt-0.5 text-sm tabular-nums text-text-secondary">
+        <p className="mt-0.5 font-mono text-sm tabular-nums text-text-secondary">
           <AnimatedCounter value={Math.round(subvalue * 100) / 100} suffix={subSuffix} />
         </p>
       ) : null}

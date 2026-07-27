@@ -51,7 +51,7 @@ export function LoginPage() {
     <div className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-8">
       <div className="mb-10 flex w-full flex-col items-center gap-3">
         <BrandLogo size="xl" showText={false} />
-        <h1 className="text-3xl font-extrabold tracking-tight">
+        <h1 className="font-display text-3xl font-semibold tracking-tight">
           <AuroraText>WorkShift</AuroraText>
         </h1>
       </div>
