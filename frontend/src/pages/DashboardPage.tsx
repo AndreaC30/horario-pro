@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBreakdown";
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
@@ -12,11 +13,9 @@ import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { Fab } from "../components/ui/Fab";
 import { SkeletonBlock } from "../components/ui/SkeletonBlock";
 import { useDashboard } from "../hooks/useDashboard";
+import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW, TYPE_HERO_NUMBER } from "../lib/typography";
 import { formatMoney } from "../utils/money";
 import { formatHours } from "../utils/time";
-
-import { PiHandWaving, PiCaretLeft, PiCaretRight } from "react-icons/pi";
-import React from "react";
 
 function todayLabel(): string {
   return new Date().toLocaleDateString("es-ES", {
@@ -36,19 +35,6 @@ function isCurrentOrFuture(year: number, month: number): boolean {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
   return year > currentYear || (year === currentYear && month >= currentMonth);
-}
-
-function StaggeredGroup({ children }: { children: React.ReactNode }) {
-  const childrenArr = React.Children.toArray(children);
-  return (
-    <>
-      {childrenArr.map((child, i) => (
-        <div key={i} className={`animate-fade-up`} style={{ animationDelay: `${i * 50}ms` }}>
-          {child}
-        </div>
-      ))}
-    </>
-  );
 }
 
 export function DashboardPage() {
@@ -101,43 +87,89 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="space-y-5 pb-20">
-        {/* Header */}
-        <header className="animate-fade-up space-y-1">
-          <p className="text-sm text-text-muted">Hola</p>
-          <h2 className="text-2xl font-bold tracking-tight text-text-primary capitalize">{todayLabel()}</h2>
-          <p className="text-sm text-text-secondary">
-            Hoy: <span className="font-semibold text-text-primary">{formatHours(data.today.hours)}</span>
-            {" · "}
-            <span className="font-semibold text-text-primary">{formatMoney(data.today.estimated_money)}</span>
-          </p>
-        </header>
+      <div className="space-y-4 pb-20">
+        {/* Hero denso estilo GDH — acento azul WorkShift */}
+        <section
+          className="card-accent animate-fade-up overflow-hidden"
+          aria-live="polite"
+        >
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,1.1fr)_1fr] sm:items-stretch sm:gap-4">
+            <div className="flex flex-col justify-center rounded-lg border border-border bg-[var(--bg-soft)] p-4">
+              <p className={TYPE_EYEBROW}>Hoy</p>
+              <h2 className={`${TYPE_DISPLAY} mt-1 capitalize`}>{todayLabel()}</h2>
+              <p className={`${TYPE_HERO_NUMBER} mt-2`}>
+                {formatHours(data.today.hours)}
+              </p>
+              <p className={`${TYPE_BODY} mt-1`}>
+                Estimado{" "}
+                <span className="font-semibold tabular-nums text-text-primary">
+                  {formatMoney(data.today.estimated_money)}
+                </span>
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <StatCard
+                magnetic
+                label="Semana"
+                value={parseFloat(data.week.hours) || 0}
+                suffix="h"
+                subvalue={parseFloat(data.week.estimated_money) || 0}
+                subSuffix="€"
+              />
+              <StatCard
+                magnetic
+                label="Mes"
+                value={parseFloat(data.month.hours) || 0}
+                suffix="h"
+                subvalue={parseFloat(data.month.estimated_money) || 0}
+                subSuffix="€"
+              />
+              <StatCard
+                magnetic
+                label="€ hoy"
+                value={parseFloat(data.today.estimated_money) || 0}
+                suffix="€"
+                subvalue={parseFloat(data.today.hours) || 0}
+                subSuffix="h"
+              />
+              <StatCard
+                magnetic
+                label="€ mes"
+                value={parseFloat(data.month.estimated_money) || 0}
+                suffix="€"
+                subvalue={parseFloat(data.month.hours) || 0}
+                subSuffix="h"
+              />
+            </div>
+          </div>
+        </section>
 
         {/* Month navigator */}
-        <div className="animate-fade-up stagger-1 flex items-center justify-between">
+        <div className="animate-fade-up stagger-1 flex items-center justify-between rounded-[10px] border border-border bg-surface px-2 py-1.5">
           <button
             type="button"
             onClick={goPrevMonth}
-            className="rounded-full p-2 text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition"
+            className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
             aria-label="Mes anterior"
           >
-            <PiCaretLeft className="w-5 h-5" />
+            <PiCaretLeft className="h-5 w-5" />
           </button>
-          <span className="text-sm font-semibold text-text-primary capitalize">
+          <span className="font-mono text-xs font-semibold uppercase tracking-[0.06em] text-text-primary capitalize sm:text-sm">
             {monthLabel(year, month)}
           </span>
           <button
             type="button"
             onClick={goNextMonth}
             disabled={isCurrentMonth}
-            className={`rounded-full p-2 transition ${
+            className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
               isCurrentMonth
-                ? "text-text-muted cursor-default"
-                : "text-text-secondary hover:text-text-primary hover:bg-white/[0.05]"
+                ? "cursor-default text-text-muted"
+                : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
             }`}
             aria-label="Mes siguiente"
           >
-            <PiCaretRight className="w-5 h-5" />
+            <PiCaretRight className="h-5 w-5" />
           </button>
         </div>
 
@@ -148,26 +180,20 @@ export function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats grid */}
-        <StaggeredGroup>
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" subvalue={parseFloat(data.today.hours) || 0} subSuffix="h" />
-          </div>
-        </StaggeredGroup>
-
-        {/* Welcome banner — static, no marquee */}
+        {/* Resumen mes compacto */}
         {Number(data.month.hours) > 0 ? (
           <div className="animate-fade-up stagger-3">
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary">
-              <PiHandWaving className="shrink-0 text-base" />
-              <span>
-                Este mes llevas <span className="font-semibold text-text-primary">{formatHours(data.month.hours)}</span>
+            <div className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-muted)] px-4 py-3">
+              <p className={TYPE_EYEBROW}>Resumen del mes</p>
+              <p className="mt-1 text-sm text-text-secondary">
+                <span className="font-display text-base font-semibold tabular-nums text-primary">
+                  {formatHours(data.month.hours)}
+                </span>
                 {" · "}
-                <span className="font-semibold text-text-primary">{formatMoney(data.month.estimated_money)}</span>
-              </span>
+                <span className="font-display text-base font-semibold tabular-nums text-text-primary">
+                  {formatMoney(data.month.estimated_money)}
+                </span>
+              </p>
             </div>
           </div>
         ) : null}
@@ -207,7 +233,7 @@ export function DashboardPage() {
                 <ShiftList shifts={data.recent_shifts} embedded />
                 <Link
                   to="/historial"
-                  className="mt-3 block text-center text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+                  className="mt-3 block text-center font-mono text-xs font-semibold uppercase tracking-wide text-primary transition-colors hover:text-primary-hover"
                 >
                   Ver historial completo
                 </Link>

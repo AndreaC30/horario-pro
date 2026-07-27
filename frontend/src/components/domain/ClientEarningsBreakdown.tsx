@@ -32,10 +32,10 @@ export function ClientEarningsBreakdown({ week, month }: ClientEarningsBreakdown
           <button
             key={key}
             type="button"
-            className={`min-h-touch rounded-full border px-4 text-sm font-medium transition ${
+            className={`min-h-touch rounded-lg border px-3 text-sm font-medium transition ${
               period === key
-                ? "border-primary bg-primary text-white shadow-card"
-                : "border-border bg-white/[0.03] text-text-secondary hover:border-white/20"
+                ? "border-primary bg-primary text-primary-foreground shadow-card"
+                : "border-border bg-[var(--bg-soft)] text-text-secondary hover:border-[var(--border-hover)] hover:text-text-primary"
             }`}
             onClick={() => setPeriod(key)}
           >
@@ -53,15 +53,15 @@ export function ClientEarningsBreakdown({ week, month }: ClientEarningsBreakdown
         <>
           <p className="mb-3 text-sm text-text-secondary">
             Total {PERIOD_LABELS[period].toLowerCase()}:{" "}
-            <span className="font-semibold text-text-primary">{formatHours(totalHours)}</span>
+            <span className="font-display font-semibold tabular-nums text-text-primary">{formatHours(totalHours)}</span>
             {" · "}
-            <span className="font-semibold text-text-primary">{formatMoneyTotal(totalMoney)}</span>
+            <span className="font-display font-semibold tabular-nums text-text-primary">{formatMoneyTotal(totalMoney)}</span>
           </p>
           <ul className="space-y-2">
             {rows.map((row) => (
               <li
                 key={row.client_id}
-                className="flex min-h-touch items-center gap-3 rounded-xl border border-border bg-white/[0.02] px-3 py-3"
+                className="flex min-h-touch items-center gap-3 rounded-lg border border-border bg-[var(--bg-soft)] px-3 py-3"
               >
                 <span
                   className="h-10 w-1 shrink-0 rounded-full"
@@ -70,13 +70,13 @@ export function ClientEarningsBreakdown({ week, month }: ClientEarningsBreakdown
                 />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium text-text-primary">{row.client_name}</p>
-                  <p className="text-xs text-text-secondary">
+                  <p className="font-mono text-xs text-text-secondary">
                     {formatHours(row.hours)}
                     {row.shift_count > 1 ? ` · ${row.shift_count} jornadas` : " · 1 jornada"}
                     {Number(row.driving_extras) > 0 ? ` · +${formatMoney(row.driving_extras)} conducción` : ""}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-text-primary">
+                <p className="font-display text-sm font-semibold tabular-nums text-text-primary">
                   {formatEstimatedPay(row.estimated_money, row.hourly_rate)}
                 </p>
               </li>
