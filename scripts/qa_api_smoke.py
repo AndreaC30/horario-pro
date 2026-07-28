@@ -155,9 +155,9 @@ def main() -> int:
     status, me = request("GET", "/api/v1/auth/me", token=token)
     record("AUTH-01b", status == 200 and isinstance(me, dict) and me.get("email"))
 
-    # No register endpoint
+    # Register endpoint exists (empty body -> validation)
     status, _ = request("POST", "/api/v1/auth/register", body={})
-    record("AUTH-10", status in (404, 405, 422))
+    record("AUTH-10", status in (422, 400))
 
     # --- CORS ---
     status, _ = request(
