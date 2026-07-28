@@ -1,5 +1,5 @@
-import { FormEvent, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { FormEvent, useEffect, useState } from "react";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 
 import { BrandLogo } from "../components/ui/BrandLogo";
 import { Button } from "../components/ui/Button";
@@ -13,16 +13,25 @@ import { OFFLINE_MESSAGE } from "../utils/network";
 
 type Mode = "login" | "register";
 
+function modeFromSearch(raw: string | null): Mode {
+  return raw === "register" ? "register" : "login";
+}
+
 export function LoginPage() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { isAuthenticated, isLoading, login, register } = useAuth();
-  const [mode, setMode] = useState<Mode>("login");
+  const [mode, setMode] = useState<Mode>(() => modeFromSearch(searchParams.get("mode")));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const online = useOnlineStatus();
+
+  useEffect(() => {
+    setMode(modeFromSearch(searchParams.get("mode")));
+  }, [searchParams]);
 
   if (!isLoading && isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -33,6 +42,7 @@ export function LoginPage() {
     setError(null);
     setPassword("");
     setPassword2("");
+    setSearchParams(next === "register" ? { mode: "register" } : {}, { replace: true });
   };
 
   const handleSubmit = async (event: FormEvent) => {
@@ -79,6 +89,14 @@ export function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8 sm:px-6">
+      <div className="mb-6">
+        <Link
+          to="/"
+          className="text-sm font-medium text-text-muted no-underline transition hover:text-primary"
+        >
+          ← Volver a WorkShift
+        </Link>
+      </div>
       <div className="mb-8 flex w-full flex-col items-center gap-3">
         <BrandLogo size="xl" showText={false} />
         <h1 className={`${TYPE_DISPLAY} text-center text-primary`}>WorkShift</h1>
