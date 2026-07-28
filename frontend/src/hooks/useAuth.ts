@@ -41,6 +41,12 @@ export function useAuth() {
     setStatus("authenticated");
   }, []);
 
+  const register = useCallback(async (email: string, password: string) => {
+    const data = await authService.register(email, password);
+    setToken(data.access_token);
+    setStatus("authenticated");
+  }, []);
+
   const logout = useCallback(() => {
     clearToken();
     setStatus("unauthenticated");
@@ -56,6 +62,7 @@ export function useAuth() {
     isAuthenticated: status === "authenticated",
     isLoading: status === "loading",
     login,
+    register,
     logout,
     persistToken,
     refresh: bootstrap,

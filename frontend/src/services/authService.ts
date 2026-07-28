@@ -20,6 +20,14 @@ export function login(email: string, password: string) {
   });
 }
 
+export function register(email: string, password: string) {
+  return apiRequest<LoginResponse>("/api/v1/auth/register", {
+    method: "POST",
+    skipAuth: true,
+    body: JSON.stringify({ email, password }),
+  });
+}
+
 export function getMe() {
   return apiRequest<UserProfile>("/api/v1/auth/me");
 }
