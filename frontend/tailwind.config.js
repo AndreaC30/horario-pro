@@ -30,7 +30,7 @@ export default {
         },
       },
       maxWidth: {
-        app: "32rem",
+        app: "36rem",
       },
       minHeight: {
         touch: "2.75rem",

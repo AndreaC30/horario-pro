@@ -2,12 +2,12 @@ import { FormEvent, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 
 import { BrandLogo } from "../components/ui/BrandLogo";
-import { AuroraText } from "../components/effects/AuroraText";
 import { Button } from "../components/ui/Button";
 import { Input } from "../components/ui/Input";
 import { Label } from "../components/ui/Label";
 import { useAuth } from "../hooks/useAuth";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
+import { TYPE_BODY, TYPE_DISPLAY } from "../lib/typography";
 import { ApiError } from "../services/apiClient";
 import { OFFLINE_MESSAGE } from "../utils/network";
 
@@ -48,16 +48,15 @@ export function LoginPage() {
   };
 
   return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-sm flex-col justify-center px-6 py-8">
-      <div className="mb-10 flex w-full flex-col items-center gap-3">
+    <div className="mx-auto flex min-h-dvh w-full max-w-md flex-col justify-center px-4 py-8 sm:px-6">
+      <div className="mb-8 flex w-full flex-col items-center gap-3">
         <BrandLogo size="xl" showText={false} />
-        <h1 className="font-display text-3xl font-semibold tracking-tight">
-          <AuroraText>WorkShift</AuroraText>
-        </h1>
+        <h1 className={`${TYPE_DISPLAY} text-center text-primary`}>WorkShift</h1>
+        <p className={`${TYPE_BODY} text-center`}>Registra tus jornadas y controla tus ingresos.</p>
       </div>
 
       <div className="card">
-        <p className="mb-5 text-sm text-text-secondary">Registra tus jornadas y controla tus ingresos.</p>
+        <p className={`mb-5 ${TYPE_BODY}`}>Accede a tu cuenta</p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
