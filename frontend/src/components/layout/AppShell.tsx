@@ -15,7 +15,10 @@ type AppShellProps = {
 
 /** Rutas de formulario / detalle donde conviene flecha atrás. */
 function shouldShowBack(pathname: string): boolean {
-  return pathname.startsWith("/jornada/");
+  if (pathname.startsWith("/jornada/")) return true;
+  if (pathname === "/clientes/nuevo") return true;
+  if (/^\/clientes\/\d+\/editar$/.test(pathname)) return true;
+  return false;
 }
 
 export function AppShell({ title, children }: AppShellProps) {

@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { ClientForm } from "../components/domain/ClientForm";
 import { ShiftQuickForm } from "../components/domain/ShiftQuickForm";
 import { Button } from "../components/ui/Button";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
-import { Modal } from "../components/ui/Modal";
 import { Toast } from "../components/ui/Toast";
 import { useClients } from "../hooks/useClients";
 import { useUnsavedGuard } from "../hooks/useUnsavedGuard";
@@ -15,20 +13,31 @@ import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import { createShift, getShift, updateShift } from "../services/shiftService";
 import type { ShiftInput } from "../types/api";
 
+type LocationState = {
+  preferredClientId?: number;
+};
+
 export function ShiftFormPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isEdit = Boolean(id);
-  const { clients, loading: clientsLoading, error: clientsError, add } = useClients();
+  const { clients, loading: clientsLoading, error: clientsError } = useClients();
   const [initial, setInitial] = useState<Partial<ShiftInput> | undefined>(undefined);
   const [loadingShift, setLoadingShift] = useState(isEdit);
   const [error, setError] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
-  const [clientModalOpen, setClientModalOpen] = useState(false);
-  const [newClientId, setNewClientId] = useState<number | undefined>(undefined);
+  const [preferredClientId, setPreferredClientId] = useState<number | undefined>(undefined);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   useUnsavedGuard(dirty);
+
+  useEffect(() => {
+    const preferred = (location.state as LocationState | null)?.preferredClientId;
+    if (preferred) {
+      setPreferredClientId(preferred);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     if (!id) return;
@@ -47,6 +56,10 @@ export function ShiftFormPage() {
       .catch((err: Error) => setError(err.message))
       .finally(() => setLoadingShift(false));
   }, [id]);
+
+  const openNewClient = () => {
+    navigate("/clientes/nuevo", { state: { from: location.pathname } });
+  };
 
   const handleSubmit = async (data: ShiftInput) => {
     if (isEdit && id) {
@@ -74,7 +87,7 @@ export function ShiftFormPage() {
 
   return (
     <>
-          <div className="space-y-6 pb-8">
+      <div className="space-y-6 pb-8">
         <div>
           <p className={TYPE_EYEBROW}>Registro</p>
           <h2 className={`${TYPE_DISPLAY} mt-0.5`}>
@@ -93,7 +106,7 @@ export function ShiftFormPage() {
               title="Primero necesitas un cliente"
               description="Crea al menos un cliente o lugar para poder registrar horas."
               action={
-                <Button type="button" className="w-full" onClick={() => setClientModalOpen(true)}>
+                <Button type="button" className="w-full" onClick={openNewClient}>
                   + Nuevo cliente
                 </Button>
               }
@@ -102,10 +115,10 @@ export function ShiftFormPage() {
             <ShiftQuickForm
               clients={clients}
               initial={initial}
-              preferredClientId={newClientId}
+              preferredClientId={preferredClientId}
               onSubmit={handleSubmit}
               onDirtyChange={setDirty}
-              onRequestNewClient={() => setClientModalOpen(true)}
+              onRequestNewClient={openNewClient}
             />
           )}
           {clients.length === 0 ? (
@@ -118,17 +131,6 @@ export function ShiftFormPage() {
           ) : null}
         </div>
       </div>
-
-      <Modal open={clientModalOpen} title="Nuevo cliente" onClose={() => setClientModalOpen(false)}>
-        <ClientForm
-          onCancel={() => setClientModalOpen(false)}
-          onSubmit={async (data) => {
-            const created = await add(data);
-            setNewClientId(created.id);
-            setClientModalOpen(false);
-          }}
-        />
-      </Modal>
 
       <Toast message={toastMessage ?? ""} visible={Boolean(toastMessage)} />
     </>
