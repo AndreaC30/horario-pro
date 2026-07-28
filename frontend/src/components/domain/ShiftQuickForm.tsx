@@ -161,7 +161,7 @@ export function ShiftQuickForm({
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          className="min-h-touch rounded-full border border-border bg-white/[0.04] px-3 text-sm font-medium text-text-primary"
+          className="min-h-touch rounded-lg bg-[var(--bg-soft)] px-3 text-sm font-medium text-text-primary transition hover:bg-[var(--bg-surface-elevated)]"
           onClick={() => {
             setEndTime(setEndToNow());
             markDirty();
@@ -171,7 +171,7 @@ export function ShiftQuickForm({
         </button>
         <button
           type="button"
-          className="min-h-touch rounded-full border border-border bg-white/[0.04] px-3 text-sm font-medium text-text-primary"
+          className="min-h-touch rounded-lg bg-[var(--bg-soft)] px-3 text-sm font-medium text-text-primary transition hover:bg-[var(--bg-surface-elevated)]"
           onClick={() => {
             setStartTime(setStartHoursAgo(8));
             markDirty();
@@ -182,19 +182,20 @@ export function ShiftQuickForm({
       </div>
 
       {preview ? (
-        <p className="rounded-xl border border-border bg-white/[0.03] px-3 py-2 text-sm text-text-secondary">
+        <p className="rounded-xl bg-[var(--bg-soft)] px-3 py-2.5 text-sm text-text-secondary">
           {drivingEnabled ? (
             <>
               Conducción:{" "}
-              <strong>
+              <strong className="text-text-primary">
                 {drivingNum > 0 ? formatMoney(drivingNum) : "indica el importe"}
               </strong>
             </>
           ) : (
             <>
-              Vista previa: <strong>{formatHours(preview.hours)}</strong>
+              Vista previa:{" "}
+              <strong className="tabular-nums text-text-primary">{formatHours(preview.hours)}</strong>
               {" · "}
-              <strong>
+              <strong className="tabular-nums text-text-primary">
                 {preview.pay !== null
                   ? formatEstimatedPay(preview.pay, selectedClient?.hourly_rate)
                   : "sin tarifa"}

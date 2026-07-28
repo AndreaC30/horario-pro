@@ -1,27 +1,69 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ShiftList } from "../components/domain/ShiftList";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { useShifts } from "../hooks/useShifts";
 import { deleteShift } from "../services/shiftService";
+import { TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import type { Shift } from "../types/api";
 import { HISTORY_PRESETS } from "../utils/dateRanges";
 
+function monthLabel(year: number, month: number): string {
+  const date = new Date(year, month - 1, 1);
+  return date.toLocaleDateString("es-ES", { month: "long", year: "numeric" });
+}
+
+function isCurrentOrFuture(year: number, month: number): boolean {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  return year > currentYear || (year === currentYear && month >= currentMonth);
+}
+
 export function HistoryPage() {
+  const now = new Date();
   const [presetId, setPresetId] = useState("month");
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth() + 1);
   const [toDelete, setToDelete] = useState<Shift | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
+  const isCurrentMonth = isCurrentOrFuture(year, month);
+
+  const goPrevMonth = () => {
+    if (month === 1) {
+      setYear(year - 1);
+      setMonth(12);
+    } else {
+      setMonth(month - 1);
+    }
+  };
+
+  const goNextMonth = () => {
+    if (isCurrentMonth) return;
+    if (month === 12) {
+      setYear(year + 1);
+      setMonth(1);
+    } else {
+      setMonth(month + 1);
+    }
+  };
+
   const bounds = useMemo(() => {
+    if (presetId === "month") {
+      const start = new Date(year, month - 1, 1);
+      const end = new Date(year, month, 1);
+      return { from: start.toISOString(), to: end.toISOString() };
+    }
     const preset = HISTORY_PRESETS.find((item) => item.id === presetId);
     return preset?.getRange() ?? {};
-  }, [presetId]);
+  }, [presetId, year, month]);
 
   const { shifts, loading, error, refresh } = useShifts({ ...bounds, limit: 100 });
 
@@ -45,18 +87,53 @@ export function HistoryPage() {
     : "";
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <p className="mb-2 text-sm font-medium text-text-secondary">Periodo</p>
-        <div className="flex flex-wrap gap-2">
+    <div className="space-y-8 pb-8">
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className={TYPE_EYEBROW}>Periodo</p>
+            <h2 className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>{monthLabel(year, month)}</h2>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={goPrevMonth}
+              className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
+              aria-label="Mes anterior"
+            >
+              <PiCaretLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={goNextMonth}
+              disabled={isCurrentMonth}
+              className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
+                isCurrentMonth
+                  ? "cursor-default text-text-muted"
+                  : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
+              }`}
+              aria-label="Mes siguiente"
+            >
+              <PiCaretRight className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+
+        <div
+          className="grid grid-cols-3 gap-1 rounded-xl bg-[var(--bg-soft)] p-1"
+          role="tablist"
+          aria-label="Filtro de fechas"
+        >
           {HISTORY_PRESETS.map((preset) => (
             <button
               key={preset.id}
               type="button"
-              className={`min-h-touch rounded-full border px-4 text-sm font-medium transition ${
+              role="tab"
+              aria-selected={presetId === preset.id}
+              className={`min-h-11 rounded-lg px-2 text-sm font-medium transition ${
                 presetId === preset.id
-                  ? "border-primary bg-primary text-white shadow-card"
-                  : "border-border bg-white/[0.03] text-text-secondary hover:border-white/20"
+                  ? "bg-surface text-text-primary shadow-card"
+                  : "text-text-muted hover:text-text-primary"
               }`}
               onClick={() => setPresetId(preset.id)}
             >
@@ -64,30 +141,37 @@ export function HistoryPage() {
             </button>
           ))}
         </div>
-      </Card>
+      </section>
 
-      {loading ? <LoadingSpinner /> : null}
-      {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
-      {!loading && !error ? (
-        <Card title="Historial">
-          <ShiftList
-            shifts={shifts}
-            emptyTitle="Aún no hay jornadas"
-            emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
-            showDelete
-            embedded
-            onDelete={(shift) => {
-              setDeleteError(null);
-              setToDelete(shift);
-            }}
-            emptyAction={
-              <Link to="/jornada/nueva">
-                <Button className="w-full">+ Nueva jornada</Button>
-              </Link>
-            }
-          />
-        </Card>
-      ) : null}
+      <section className="space-y-3">
+        <div>
+          <p className={TYPE_EYEBROW}>Listado</p>
+          <h2 className={`${TYPE_DISPLAY} mt-0.5`}>Jornadas</h2>
+        </div>
+
+        {loading ? <LoadingSpinner /> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
+        {!loading && !error ? (
+          <div className="border-t border-border/70 pt-3">
+            <ShiftList
+              shifts={shifts}
+              emptyTitle="Aún no hay jornadas"
+              emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
+              showDelete
+              embedded
+              onDelete={(shift) => {
+                setDeleteError(null);
+                setToDelete(shift);
+              }}
+              emptyAction={
+                <Link to="/jornada/nueva" state={{ from: "/historial" }}>
+                  <Button className="w-full">+ Nueva jornada</Button>
+                </Link>
+              }
+            />
+          </div>
+        ) : null}
+      </section>
 
       <ConfirmModal
         open={Boolean(toDelete)}

@@ -14,21 +14,29 @@ from app.utils.calculations import estimated_pay, worked_hours
 TZ = ZoneInfo("Europe/Madrid")
 
 
-def _bounds(now: datetime, year: int | None = None, month: int | None = None) -> tuple[datetime, datetime, datetime, datetime]:
+def _period_bounds(
+    now: datetime,
+    year: int | None = None,
+    month: int | None = None,
+) -> tuple[datetime, datetime, datetime, datetime, datetime]:
+    """Return start_today, end_today, start_week, start_month, end_month (Europe/Madrid)."""
     local = now.astimezone(TZ)
     start_today = local.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_today = start_today + timedelta(days=1)
     start_week = start_today - timedelta(days=start_today.weekday())
 
     if year is not None and month is not None:
-        start_month = local.replace(year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0)
+        start_month = local.replace(
+            year=year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0,
+        )
         _, last_day = monthrange(year, month)
         end_month = start_month.replace(day=last_day) + timedelta(days=1)
-        end_today = end_month
     else:
         start_month = local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        end_today = start_today + timedelta(days=1)
+        # Month-to-date when no explicit month is requested.
+        end_month = end_today
 
-    return start_today, start_week, start_month, end_today
+    return start_today, end_today, start_week, start_month, end_month
 
 
 def _shift_in_period(shift: Shift, start: datetime, end: datetime) -> bool:
@@ -87,6 +95,21 @@ def _aggregate_by_client(shifts: list[Shift]) -> list[ClientPeriodSummary]:
     return rows
 
 
+def _load_shifts(db: Session, user_id: int, start: datetime, end: datetime) -> list[Shift]:
+    return list(
+        db.scalars(
+            select(Shift)
+            .options(joinedload(Shift.client))
+            .where(Shift.user_id == user_id)
+            .where(Shift.start_time >= start)
+            .where(Shift.start_time < end)
+            .order_by(Shift.start_time.desc()),
+        )
+        .unique()
+        .all(),
+    )
+
+
 def get_summary(
     db: Session,
     user_id: int,
@@ -95,42 +118,41 @@ def get_summary(
     month: int | None = None,
 ) -> DashboardSummary:
     now = datetime.now(TZ)
-    start_today, start_week, start_month, end_today = _bounds(now, year=year, month=month)
+    start_today, end_today, start_week, start_month, end_month = _period_bounds(
+        now, year=year, month=month,
+    )
 
-    # When querying a specific month, only fetch shifts in that month range
-    if year is not None and month is not None:
-        all_shifts = list(
-            db.scalars(
-                select(Shift)
-                .options(joinedload(Shift.client))
-                .where(Shift.user_id == user_id)
-                .where(Shift.start_time >= start_month)
-                .where(Shift.start_time < end_today)
-                .order_by(Shift.start_time.desc()),
-            ).unique().all(),
-        )
-        today_shifts: list[Shift] = []
-        week_shifts: list[Shift] = []
-        month_shifts = all_shifts
+    month_shifts = _load_shifts(db, user_id, start_month, end_month)
+
+    # Hoy / semana siempre son el calendario real (Europe/Madrid), aunque el mes
+    # seleccionado sea otro. Reutilizamos month_shifts si la semana cae dentro.
+    if start_week >= start_month and end_today <= end_month:
+        current_pool = month_shifts
     else:
-        all_shifts = list(
+        current_pool = _load_shifts(db, user_id, start_week, end_today)
+
+    today_shifts = [s for s in current_pool if _shift_in_period(s, start_today, end_today)]
+    week_shifts = [s for s in current_pool if _shift_in_period(s, start_week, end_today)]
+
+    if year is not None and month is not None:
+        recent_source = month_shifts
+    else:
+        recent_source = list(
             db.scalars(
                 select(Shift)
                 .options(joinedload(Shift.client))
                 .where(Shift.user_id == user_id)
                 .order_by(Shift.start_time.desc()),
-            ).unique().all(),
+            )
+            .unique()
+            .all(),
         )
-
-        today_shifts = [s for s in all_shifts if _shift_in_period(s, start_today, end_today)]
-        week_shifts = [s for s in all_shifts if _shift_in_period(s, start_week, end_today)]
-        month_shifts = [s for s in all_shifts if _shift_in_period(s, start_month, end_today)]
 
     return DashboardSummary(
-        today=_aggregate_shifts(today_shifts) if year is None else _aggregate_shifts([]),
-        week=_aggregate_shifts(week_shifts) if year is None else _aggregate_shifts([]),
+        today=_aggregate_shifts(today_shifts),
+        week=_aggregate_shifts(week_shifts),
         month=_aggregate_shifts(month_shifts),
-        by_client_week=_aggregate_by_client(week_shifts) if year is None else [],
+        by_client_week=_aggregate_by_client(week_shifts),
         by_client_month=_aggregate_by_client(month_shifts),
-        recent_shifts=[_to_shift_read(s) for s in all_shifts[:recent_limit]],
+        recent_shifts=[_to_shift_read(s) for s in recent_source[:recent_limit]],
     )

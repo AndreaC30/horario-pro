@@ -38,7 +38,7 @@ test.describe("QA smoke UI (05-qa §10.1)", () => {
     await expect(page).toHaveURL(/\/dashboard/);
 
     await page.getByRole("button", { name: "Salir" }).click();
-    await expect(page).toHaveURL(/\/login/);
+    await expect(page).toHaveURL(/\/$/);
   });
 
   test("AUTH-05 persistencia token tras recarga", async ({ page }) => {

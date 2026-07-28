@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
+import { useCallback } from "react";
 
+import { useEscapeToClose, useHistoryBackClose } from "../../hooks/useOverlayClose";
 import { Button } from "./Button";
 
 type ConfirmModalProps = {
@@ -27,20 +29,21 @@ export function ConfirmModal({
   onClose,
   onConfirm,
 }: ConfirmModalProps) {
+  const handleClose = useCallback(() => {
+    if (!loading) onClose();
+  }, [loading, onClose]);
+
+  useEscapeToClose(open, handleClose, !loading);
+  useHistoryBackClose(open, handleClose);
+
   if (!open) {
     return null;
   }
 
-  const handleBackdrop = () => {
-    if (!loading) {
-      onClose();
-    }
-  };
-
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
-      onClick={handleBackdrop}
+      onClick={handleClose}
       role="presentation"
     >
       <div
@@ -59,7 +62,13 @@ export function ConfirmModal({
         </div>
         {error ? <p className="mt-2 text-sm text-danger">{error}</p> : null}
         <div className="mt-4 flex gap-2">
-          <Button variant="secondary" className="flex-1 !px-3 !py-2.5 text-sm" type="button" disabled={loading} onClick={onClose}>
+          <Button
+            variant="secondary"
+            className="flex-1 !px-3 !py-2.5 text-sm"
+            type="button"
+            disabled={loading}
+            onClick={handleClose}
+          >
             {cancelLabel}
           </Button>
           <Button

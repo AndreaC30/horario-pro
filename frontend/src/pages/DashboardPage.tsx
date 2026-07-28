@@ -1,22 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBreakdown";
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { Fab } from "../components/ui/Fab";
 import { SkeletonBlock } from "../components/ui/SkeletonBlock";
 import { useDashboard } from "../hooks/useDashboard";
+import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW, TYPE_HERO_NUMBER } from "../lib/typography";
 import { formatMoney } from "../utils/money";
 import { formatHours } from "../utils/time";
-
-import { PiHandWaving, PiCaretLeft, PiCaretRight } from "react-icons/pi";
-import React from "react";
 
 function todayLabel(): string {
   return new Date().toLocaleDateString("es-ES", {
@@ -36,19 +34,6 @@ function isCurrentOrFuture(year: number, month: number): boolean {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth() + 1;
   return year > currentYear || (year === currentYear && month >= currentMonth);
-}
-
-function StaggeredGroup({ children }: { children: React.ReactNode }) {
-  const childrenArr = React.Children.toArray(children);
-  return (
-    <>
-      {childrenArr.map((child, i) => (
-        <div key={i} className={`animate-fade-up`} style={{ animationDelay: `${i * 50}ms` }}>
-          {child}
-        </div>
-      ))}
-    </>
-  );
 }
 
 export function DashboardPage() {
@@ -80,15 +65,11 @@ export function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <SkeletonBlock className="h-16" />
-        <div className="grid grid-cols-2 gap-3">
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-        </div>
-        <SkeletonBlock className="h-32" />
+      <div className="space-y-6">
+        <SkeletonBlock className="h-36" />
+        <SkeletonBlock className="h-28" />
+        <SkeletonBlock className="h-40" />
+        <SkeletonBlock className="h-40" />
       </div>
     );
   }
@@ -98,106 +79,150 @@ export function DashboardPage() {
   }
 
   const isEmpty = data.recent_shifts.length === 0 && Number(data.month.hours) === 0;
+  const todayEmpty = Number(data.today.hours) === 0;
 
   return (
     <>
-      <div className="space-y-5 pb-20">
-        {/* Header */}
-        <header className="animate-fade-up space-y-1">
-          <p className="text-sm text-text-muted">Hola</p>
-          <h2 className="text-2xl font-bold tracking-tight text-text-primary capitalize">{todayLabel()}</h2>
-          <p className="text-sm text-text-secondary">
-            Hoy: <span className="font-semibold text-text-primary">{formatHours(data.today.hours)}</span>
-            {" · "}
-            <span className="font-semibold text-text-primary">{formatMoney(data.today.estimated_money)}</span>
-          </p>
-        </header>
-
-        {/* Month navigator */}
-        <div className="animate-fade-up stagger-1 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={goPrevMonth}
-            className="rounded-full p-2 text-text-secondary hover:text-text-primary hover:bg-white/[0.05] transition"
-            aria-label="Mes anterior"
-          >
-            <PiCaretLeft className="w-5 h-5" />
-          </button>
-          <span className="text-sm font-semibold text-text-primary capitalize">
-            {monthLabel(year, month)}
-          </span>
-          <button
-            type="button"
-            onClick={goNextMonth}
-            disabled={isCurrentMonth}
-            className={`rounded-full p-2 transition ${
-              isCurrentMonth
-                ? "text-text-muted cursor-default"
-                : "text-text-secondary hover:text-text-primary hover:bg-white/[0.05]"
-            }`}
-            aria-label="Mes siguiente"
-          >
-            <PiCaretRight className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Desktop CTA */}
-        <div className="animate-fade-up stagger-2 hidden sm:block">
-          <Link to="/jornada/nueva" className="block">
-            <Button className="w-full">+ Nueva jornada</Button>
-          </Link>
-        </div>
-
-        {/* Stats grid */}
-        <StaggeredGroup>
-          <div className="grid grid-cols-2 gap-3">
-            <StatCard magnetic label="Hoy" value={parseFloat(data.today.hours) || 0} suffix="h" subvalue={parseFloat(data.today.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Semana" value={parseFloat(data.week.hours) || 0} suffix="h" subvalue={parseFloat(data.week.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Mes" value={parseFloat(data.month.hours) || 0} suffix="h" subvalue={parseFloat(data.month.estimated_money) || 0} subSuffix="€" />
-            <StatCard magnetic label="Estimado hoy" value={parseFloat(data.today.estimated_money) || 0} suffix="€" subvalue={parseFloat(data.today.hours) || 0} subSuffix="h" />
+      <div className="space-y-10 pb-20">
+        {/* ——— 1. HOY ——— */}
+        <section aria-labelledby="section-hoy" className="space-y-3" data-tour="hoy">
+          <div>
+            <p className={TYPE_EYEBROW}>Hoy</p>
+            <h2 id="section-hoy" className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>
+              {todayLabel()}
+            </h2>
           </div>
-        </StaggeredGroup>
 
-        {/* Welcome banner — static, no marquee */}
-        {Number(data.month.hours) > 0 ? (
-          <div className="animate-fade-up stagger-3">
-            <div className="flex items-center gap-2 rounded-xl border border-border bg-surface px-4 py-3 text-sm text-text-secondary">
-              <PiHandWaving className="shrink-0 text-base" />
-              <span>
-                Este mes llevas <span className="font-semibold text-text-primary">{formatHours(data.month.hours)}</span>
-                {" · "}
-                <span className="font-semibold text-text-primary">{formatMoney(data.month.estimated_money)}</span>
-              </span>
+          <div className="card-accent" aria-live="polite">
+            {todayEmpty ? (
+              <div className="space-y-2">
+                <p className="font-display text-lg font-semibold tracking-tight text-text-secondary sm:text-xl">
+                  Sin horas hoy
+                </p>
+                <p className={TYPE_BODY}>
+                  Cuando registres una jornada, aquí verás las horas y el estimado del día.
+                </p>
+                <Link to="/jornada/nueva" state={{ from: "/dashboard" }} className="mt-2 inline-block sm:hidden">
+                  <Button type="button" className="w-full">
+                    + Nueva jornada
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <p className={TYPE_HERO_NUMBER}>{formatHours(data.today.hours)}</p>
+                <p className={`${TYPE_BODY} mt-1`}>
+                  Estimado{" "}
+                  <span className="font-semibold tabular-nums text-text-primary">
+                    {formatMoney(data.today.estimated_money)}
+                  </span>
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* ——— 2. ESTE MES ——— */}
+        <section aria-labelledby="section-mes" className="space-y-3" data-tour="mes">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className={TYPE_EYEBROW}>Este mes</p>
+              <h2 id="section-mes" className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>
+                {monthLabel(year, month)}
+              </h2>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={goPrevMonth}
+                className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
+                aria-label="Mes anterior"
+              >
+                <PiCaretLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={goNextMonth}
+                disabled={isCurrentMonth}
+                className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
+                  isCurrentMonth
+                    ? "cursor-default text-text-muted"
+                    : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
+                }`}
+                aria-label="Mes siguiente"
+              >
+                <PiCaretRight className="h-5 w-5" />
+              </button>
             </div>
           </div>
-        ) : null}
 
-        {/* Client breakdown */}
-        <div className="animate-fade-up stagger-4">
-          <ClientEarningsBreakdown
-            week={data.by_client_week ?? []}
-            month={data.by_client_month ?? []}
-          />
-        </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-[1fr_1fr_auto] lg:items-stretch">
+            <StatCard
+              label="Horas"
+              value={parseFloat(data.month.hours) || 0}
+              suffix="h"
+            />
+            <StatCard
+              label="Ingresos"
+              value={parseFloat(data.month.estimated_money) || 0}
+              suffix="€"
+            />
+            <div className="col-span-2 hidden sm:col-span-2 sm:block lg:col-span-1 lg:flex lg:items-stretch">
+              <Link to="/jornada/nueva" state={{ from: "/dashboard" }} className="block w-full lg:flex lg:flex-1">
+                <Button className="h-full min-h-touch w-full">+ Nueva jornada</Button>
+              </Link>
+            </div>
+          </div>
 
-        {/* Driving extras */}
-        <div className="animate-fade-up stagger-5">
-          <DrivingExtrasSummary
-            today={data.today.driving_extras}
-            week={data.week.driving_extras}
-            month={data.month.driving_extras}
-          />
-        </div>
+          <p className="font-mono text-xs text-text-muted sm:text-sm">
+            Semana en curso ·{" "}
+            <span className="tabular-nums text-text-secondary">{formatHours(data.week.hours)}</span>
+            {" · "}
+            <span className="tabular-nums text-text-secondary">
+              {formatMoney(data.week.estimated_money)}
+            </span>
+          </p>
+        </section>
 
-        {/* Recent shifts */}
-        <div className="animate-fade-up stagger-6">
-          <Card title="Últimas jornadas">
+        {/* ——— 3. POR CLIENTE (+ extras) ——— */}
+        <section aria-labelledby="section-clientes" className="space-y-4">
+          <div>
+            <p className={TYPE_EYEBROW}>Desglose</p>
+            <h2 id="section-clientes" className={`${TYPE_DISPLAY} mt-0.5`}>
+              Por cliente
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+            <ClientEarningsBreakdown
+              week={data.by_client_week ?? []}
+              month={data.by_client_month ?? []}
+              hideMonthTotal
+            />
+            <DrivingExtrasSummary
+              today={data.today.driving_extras}
+              week={data.week.driving_extras}
+              month={data.month.driving_extras}
+            />
+          </div>
+        </section>
+
+        {/* ——— 4. ACTIVIDAD ——— */}
+        <section aria-labelledby="section-actividad" className="space-y-3">
+          <div>
+            <p className={TYPE_EYEBROW}>Actividad</p>
+            <h2 id="section-actividad" className={`${TYPE_DISPLAY} mt-0.5`}>
+              Últimas jornadas
+            </h2>
+          </div>
+
+          <div className="border-t border-border/70 pt-3">
             {isEmpty ? (
               <EmptyState
                 title="Aún no hay jornadas"
                 description="Crea un cliente y registra tu primera jornada."
                 action={
-                  <Link to="/jornada/nueva">
+                  <Link to="/jornada/nueva" state={{ from: "/dashboard" }}>
                     <Button className="w-full">+ Nueva jornada</Button>
                   </Link>
                 }
@@ -207,14 +232,14 @@ export function DashboardPage() {
                 <ShiftList shifts={data.recent_shifts} embedded />
                 <Link
                   to="/historial"
-                  className="mt-3 block text-center text-sm font-medium text-primary hover:text-primary-hover transition-colors"
+                  className="mt-3 block text-center font-mono text-xs font-semibold uppercase tracking-wide text-primary transition-colors hover:text-primary-hover"
                 >
                   Ver historial completo
                 </Link>
               </>
             )}
-          </Card>
-        </div>
+          </div>
+        </section>
       </div>
 
       <Fab to="/jornada/nueva" label="+ Nueva jornada" />

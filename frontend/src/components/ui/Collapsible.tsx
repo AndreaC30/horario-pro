@@ -11,7 +11,7 @@ export function Collapsible({ label, children, defaultOpen = false }: Collapsibl
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-xl border border-border bg-white/[0.02]">
+    <div className="rounded-xl bg-[var(--bg-soft)]">
       <button
         type="button"
         className="flex min-h-touch w-full items-center justify-between px-3 py-2 text-left text-sm font-medium text-text-primary"
@@ -23,7 +23,7 @@ export function Collapsible({ label, children, defaultOpen = false }: Collapsibl
           {open ? <IoRemove className="h-5 w-5" /> : <IoAdd className="h-5 w-5" />}
         </span>
       </button>
-      {open ? <div className="space-y-3 border-t border-border px-3 py-3">{children}</div> : null}
+      {open ? <div className="space-y-3 border-t border-border/70 px-3 py-3">{children}</div> : null}
     </div>
   );
 }

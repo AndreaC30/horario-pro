@@ -7,12 +7,16 @@ const titles: Record<string, string> = {
   "/dashboard": "Inicio",
   "/historial": "Historial",
   "/clientes": "Clientes",
+  "/clientes/nuevo": "Nuevo cliente",
   "/jornada/nueva": "Nueva jornada",
 };
 
 function resolveTitle(pathname: string): string {
   if (pathname.startsWith("/jornada/") && pathname !== "/jornada/nueva") {
     return "Editar jornada";
+  }
+  if (/^\/clientes\/\d+\/editar$/.test(pathname)) {
+    return "Editar cliente";
   }
   return titles[pathname] ?? "WorkShift";
 }
