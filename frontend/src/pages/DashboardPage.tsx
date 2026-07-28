@@ -7,7 +7,6 @@ import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary"
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { Fab } from "../components/ui/Fab";
@@ -84,7 +83,7 @@ export function DashboardPage() {
 
   return (
     <>
-      <div className="space-y-8 pb-20">
+      <div className="space-y-10 pb-20">
         {/* ——— 1. HOY ——— */}
         <section aria-labelledby="section-hoy" className="space-y-3">
           <div>
@@ -97,10 +96,11 @@ export function DashboardPage() {
           <div className="card-accent" aria-live="polite">
             {todayEmpty ? (
               <div className="space-y-2">
-                <p className={`${TYPE_HERO_NUMBER}`}>0 h</p>
+                <p className="font-display text-lg font-semibold tracking-tight text-text-secondary sm:text-xl">
+                  Sin horas hoy
+                </p>
                 <p className={TYPE_BODY}>
-                  Aún no has registrado horas hoy. Cuando registres una jornada, verás aquí el
-                  estimado del día.
+                  Cuando registres una jornada, aquí verás las horas y el estimado del día.
                 </p>
                 <Link to="/jornada/nueva" className="mt-2 inline-block sm:hidden">
                   <Button type="button" className="w-full">
@@ -131,7 +131,7 @@ export function DashboardPage() {
                 {monthLabel(year, month)}
               </h2>
             </div>
-            <div className="flex items-center rounded-[10px] border border-border bg-surface px-1 py-0.5">
+            <div className="flex items-center gap-0.5">
               <button
                 type="button"
                 onClick={goPrevMonth}
@@ -174,21 +174,18 @@ export function DashboardPage() {
             </div>
           </div>
 
-          {/* Semana como contexto secundario (una sola línea, no 4 cards) */}
-          <p className={`${TYPE_BODY} text-text-muted`}>
-            Semana en curso:{" "}
-            <span className="font-mono tabular-nums text-text-secondary">
-              {formatHours(data.week.hours)}
-            </span>
+          <p className="font-mono text-xs text-text-muted sm:text-sm">
+            Semana en curso ·{" "}
+            <span className="tabular-nums text-text-secondary">{formatHours(data.week.hours)}</span>
             {" · "}
-            <span className="font-mono tabular-nums text-text-secondary">
+            <span className="tabular-nums text-text-secondary">
               {formatMoney(data.week.estimated_money)}
             </span>
           </p>
         </section>
 
         {/* ——— 3. POR CLIENTE (+ extras) ——— */}
-        <section aria-labelledby="section-clientes" className="space-y-3">
+        <section aria-labelledby="section-clientes" className="space-y-4">
           <div>
             <p className={TYPE_EYEBROW}>Desglose</p>
             <h2 id="section-clientes" className={`${TYPE_DISPLAY} mt-0.5`}>
@@ -196,7 +193,7 @@ export function DashboardPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
             <ClientEarningsBreakdown
               week={data.by_client_week ?? []}
               month={data.by_client_month ?? []}
@@ -219,7 +216,7 @@ export function DashboardPage() {
             </h2>
           </div>
 
-          <Card>
+          <div className="border-t border-border/70 pt-3">
             {isEmpty ? (
               <EmptyState
                 title="Aún no hay jornadas"
@@ -241,7 +238,7 @@ export function DashboardPage() {
                 </Link>
               </>
             )}
-          </Card>
+          </div>
         </section>
       </div>
 

@@ -163,51 +163,49 @@ html.dark {
 }
 
 @layer components {
-  /* ---- Surface: base (densidad GDH) ---- */
+  /* ---- Surface: base (densidad GDH, bordes quietos) ---- */
   .card {
-    border-radius: 10px;
-    border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--border) 70%, transparent);
     background-color: var(--bg-surface);
     padding: 1rem 1.125rem;
-    box-shadow: var(--card-shadow);
+    box-shadow: none;
     transition:
-      box-shadow 0.2s ease,
+      background-color 0.2s ease,
       border-color 0.2s ease;
   }
 
   .card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--card-shadow-elevated);
+    border-color: var(--border);
+    background-color: var(--bg-surface);
   }
 
   /* ---- Surface: elevated ---- */
   .card-elevated {
-    border-radius: 10px;
-    border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1px solid transparent;
     background-color: var(--bg-surface-elevated);
     padding: 1rem 1.125rem;
-    box-shadow: var(--card-shadow-elevated);
+    box-shadow: var(--card-shadow);
     transition:
       box-shadow 0.2s ease,
-      border-color 0.2s ease;
+      background-color 0.2s ease;
   }
 
   .card-elevated:hover {
-    border-color: var(--border-hover);
+    box-shadow: var(--card-shadow-elevated);
   }
 
-  /* ---- Surface: accent (destacada) ---- */
+  /* ---- Surface: accent (barra lateral, sin caja azul) ---- */
   .card-accent {
-    border-radius: 10px;
-    border: 1px solid var(--accent-border);
+    border-radius: 12px;
+    border: 1px solid transparent;
     background-color: var(--bg-surface);
-    padding: 1rem 1.125rem;
+    padding: 1.125rem 1.25rem;
     box-shadow:
       inset 3px 0 0 var(--accent),
       var(--card-shadow);
-    transition:
-      box-shadow 0.2s ease,
-      border-color 0.2s ease;
+    transition: box-shadow 0.2s ease;
   }
 
   .card-accent:hover {
@@ -216,41 +214,34 @@ html.dark {
       var(--card-shadow-elevated);
   }
 
-  /* ---- Stat card (KPI denso) ---- */
+  /* ---- Stat card (KPI denso, sin borde) ---- */
   .stat-card {
-    border-radius: 8px;
-    border: 1px solid var(--border);
+    border-radius: 10px;
+    border: none;
     background-color: var(--bg-soft);
-    padding: 0.75rem 0.875rem;
+    padding: 0.875rem 1rem;
     box-shadow: none;
-    transition:
-      box-shadow 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
+    transition: background-color 0.2s ease;
   }
 
   .stat-card:hover {
-    border-color: var(--border-hover);
     background-color: var(--bg-surface-elevated);
   }
 
-  /* ---- List item ---- */
+  /* ---- List item (separadores, no cajas) ---- */
   .list-item {
     display: flex;
     min-height: 2.75rem;
     align-items: center;
     gap: 0.75rem;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background-color: var(--bg-soft);
-    padding: 0.625rem 0.75rem;
-    transition:
-      border-color 0.15s ease,
-      background-color 0.15s ease;
+    border: none;
+    background-color: transparent;
+    padding: 0.625rem 0.25rem;
+    transition: background-color 0.15s ease;
   }
 
   .list-item:hover {
-    border-color: var(--border-hover);
     background-color: var(--accent-muted);
   }
 

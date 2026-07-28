@@ -3,7 +3,6 @@ import { useState } from "react";
 import type { ClientPeriodSummary } from "../../types/api";
 import { formatEstimatedPay, formatMoney } from "../../utils/money";
 import { formatHours } from "../../utils/time";
-import { Card } from "../ui/Card";
 import { EmptyState } from "../ui/EmptyState";
 
 type PeriodKey = "week" | "month";
@@ -33,16 +32,22 @@ export function ClientEarningsBreakdown({
   const showTotal = period === "week" || !hideMonthTotal;
 
   return (
-    <Card className="scroll-mt-4 h-full" id="por-cliente">
-      <div className="mb-3 flex flex-wrap gap-2">
+    <div className="scroll-mt-4 h-full" id="por-cliente">
+      <div
+        className="mb-4 grid grid-cols-2 gap-1 rounded-xl bg-[var(--bg-soft)] p-1"
+        role="tablist"
+        aria-label="Periodo por cliente"
+      >
         {(Object.keys(PERIOD_LABELS) as PeriodKey[]).map((key) => (
           <button
             key={key}
             type="button"
-            className={`min-h-touch rounded-lg border px-3 text-sm font-medium transition ${
+            role="tab"
+            aria-selected={period === key}
+            className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
               period === key
-                ? "border-primary bg-primary text-primary-foreground shadow-card"
-                : "border-border bg-[var(--bg-soft)] text-text-secondary hover:border-[var(--border-hover)] hover:text-text-primary"
+                ? "bg-surface text-text-primary shadow-card"
+                : "text-text-muted hover:text-text-primary"
             }`}
             onClick={() => setPeriod(key)}
           >
@@ -70,14 +75,11 @@ export function ClientEarningsBreakdown({
               </span>
             </p>
           ) : null}
-          <ul className="space-y-2">
+          <ul className="divide-y divide-border/80">
             {rows.map((row) => (
-              <li
-                key={row.client_id}
-                className="flex min-h-touch items-center gap-3 rounded-lg border border-border bg-[var(--bg-soft)] px-3 py-3"
-              >
+              <li key={row.client_id} className="flex min-h-touch items-center gap-3 py-3 first:pt-0 last:pb-0">
                 <span
-                  className="h-10 w-1 shrink-0 rounded-full"
+                  className="h-9 w-1 shrink-0 rounded-full"
                   style={{ backgroundColor: row.client_color }}
                   aria-hidden
                 />
@@ -99,7 +101,7 @@ export function ClientEarningsBreakdown({
           </ul>
         </>
       )}
-    </Card>
+    </div>
   );
 }
 

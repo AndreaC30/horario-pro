@@ -1,86 +1,88 @@
-# WorkShift — Sistema de diseño UI (2026)
+# WorkShift — Sistema de diseño UI
 
-Marca visible en la app: **WorkShift** (dominio producción: `workshift.andreacruz.es`).  
-Repositorio interno: `horario-pro`.
+Marca visible: **WorkShift** (prod: `workshift.andreacruz.es`).  
+Repo: `horario-pro`.
 
 ## Dirección visual
 
-**Concepto:** *Dark glass productivity dashboard* — minimalista, premium, rápido (referencias: Linear, Notion Calendar, Vercel, Revolut).
+**Concepto:** *Dense productivity UI* al estilo GastoDeHoy / Observabilidad V11, con **identidad azul WorkShift** (no cian GDH, no morado legacy).
 
-- Modo oscuro por defecto (`html.dark`)
-- Fondos profundos + gradiente radial suave
-- Tarjetas glass (`backdrop-blur`, bordes `rgba(255,255,255,0.06)`)
-- Acento morado eléctrico `#7C5CFF`
-- Tipografía **Inter** (Google Fonts)
-- Mobile first: botones ≥44px, FAB «+ Nueva jornada», bottom nav
+- Dark por defecto (`html.dark`), light disponible
+- Superficies densas, tipografía Inter / Space Grotesk / JetBrains Mono
+- Jerarquía por **espacio + tipografía**, no por cajas con borde azul
+- Acento: `#2563EB` (light) / `#3B82F6` (dark)
+- Mobile first: touch ≥44px, FAB «+ Nueva jornada», bottom nav
 
-## Tokens (Tailwind)
+## Tokens (CSS)
 
-| Token | Valor |
-|-------|--------|
-| `background` | `#0B1020` |
-| `surface` | `#12182B` |
-| `primary` | `#7C5CFF` |
-| `primary-hover` | `#9277FF` |
-| `text-primary` | `#F5F7FA` |
-| `text-secondary` | `#94A3B8` |
-| `success` / `warning` / `danger` | `#22C55E` / `#F59E0B` / `#EF4444` |
+Definidos en `frontend/src/index.css` (`:root` / `html.dark`):
 
-Config: `frontend/tailwind.config.js`  
-Utilidades: `frontend/src/index.css` (`.glass-card`, `.glass-input`)
+| Rol | Light | Dark |
+|-----|-------|------|
+| Fondo | `#f8fafc` | `#070b1e` |
+| Surface | `#ffffff` | `#0a194b` |
+| Acento | `#2563eb` | `#3b82f6` |
+| Texto | `#0f172a` | `#eef2ff` |
+
+Clases de superficie:
+
+| Clase | Uso |
+|-------|-----|
+| `.card` | Contenedor suave (borde muy sutil, sin sombra fuerte) |
+| `.card-accent` | Hero / foco: barra lateral azul, sin caja “glow” |
+| `.stat-card` | KPI: fondo soft **sin borde** |
+| `.list-item` | Filas: sin borde; hover con accent-muted |
+
+Tipografía: `frontend/src/lib/typography.ts` (`TYPE_EYEBROW`, `TYPE_DISPLAY`, `TYPE_HERO_NUMBER`, …).
+
+## Arquitectura de Inicio (dashboard)
+
+Una columna; un job por sección:
+
+1. **Hoy** — fecha + horas/€ del día (o empty quieto “Sin horas hoy”)
+2. **Este mes** — selector + 2 KPIs (horas \| ingresos) + línea secundaria de semana
+3. **Por cliente** — toggle semana/mes + ranking (sin repetir total del mes)
+4. **Actividad** — últimas jornadas (separador, no card anidada)
 
 ## Colores de cliente (preset)
 
-`#7C5CFF`, `#06B6D4`, `#22C55E`, `#F97316`, `#EC4899`, `#EAB308`, … — ver `ColorPicker.tsx`.
+Ver `ColorPicker.tsx` — presets saturados legibles sobre dark/light.
 
 ## Iconos y PWA
 
 | Archivo | Uso |
 |---------|-----|
-| `public/icon-source.png` | Maestro (exportar desde diseño) |
-| `favicon.ico`, `favicon-16/32.png` | Pestaña navegador |
-| `apple-touch-icon.png` (180) | iOS Add to Home Screen |
-| `pwa-192x192.png`, `pwa-512x512.png` | Android / manifest |
-| `maskable-512x512.png` | Android adaptive icon (zona segura) |
-
-Regenerar tras cambiar el logo:
+| `public/icon-source.png` | Maestro |
+| favicons / apple-touch / pwa-* / maskable | Navegador e instalación |
 
 ```bash
 cd frontend && npm run icons
 ```
 
-Meta tags: `frontend/index.html`  
-Manifest PWA: `vite.config.ts` → `vite-plugin-pwa`
-
-### Plataformas
-
-- **iOS:** `apple-touch-icon`, `apple-mobile-web-app-title`, `theme-color`, `status-bar-style`
-- **Android:** manifest + maskable icon
-- **Windows:** `msapplication-TileColor` / `TileImage`
-- **Desktop:** favicon PNG/ICO en pestaña
-
 ## Componentes clave
 
-| Componente | Ruta |
-|------------|------|
-| `BrandLogo` | Login |
-| `Fab` | Dashboard (móvil) |
-| `glass-card` / `glass-input` | Cards e inputs |
+| Componente | Notas |
+|------------|--------|
+| `BrandLogo` | Login / landing |
+| `Fab` | CTA móvil |
 | `BottomNav` | Shell autenticado |
+| `LandingPage` | Preview pública antes de login |
 
 ## Responsive
 
-- Contenedor máximo `max-w-app` (32rem), centrado
-- Grid métricas 2 columnas en móvil
-- FAB oculto en texto muy estrecho (`max-[380px]:sr-only` en etiqueta larga)
-- Clientes: acciones en fila en pantallas anchas (`sm:flex-nowrap`)
-- CTA ancho completo en dashboard solo desde `sm:` (FAB en móvil)
+- Shell `max-w-app` (36rem) → `md:max-w-3xl`
+- CTA desktop bajo mes; FAB en móvil
+- Evitar grids de métricas >2 en el primer viewport
 
-## Implementación
+## Qué evitar
 
-No se añadió shadcn/framer/lucide en MVP para mantener el bundle pequeño; estilos aplicados sobre componentes existentes.
+- Bordes accent en cada card/hover (sensación “todo azul + cajas”)
+- Repetir el mismo total (mes) en 3 sitios
+- Hero vacío con “0 h” enorme compitiendo con el mes
+- Efectos aurora / shine / glass morado (retirados)
 
 ## Referencias
 
 - [04-ux-criterios.md](./04-ux-criterios.md)
-- [02-frontend-tareas.md](./02-frontend-tareas.md) — Fase 7 PWA
+- [02-frontend-tareas.md](./02-frontend-tareas.md)
+- Canvas: `workshift-inicio-ux-study.canvas.tsx` (estudio Fase A/B)
