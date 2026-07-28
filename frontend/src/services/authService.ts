@@ -3,6 +3,7 @@ import { apiRequest } from "./apiClient";
 export type UserProfile = {
   id: number;
   email: string;
+  display_name: string | null;
   tour_completed: boolean;
   created_at: string;
 };
@@ -29,8 +30,30 @@ export function register(email: string, password: string) {
   });
 }
 
+export function forgotPassword(email: string) {
+  return apiRequest<{ detail: string }>("/api/v1/auth/forgot-password", {
+    method: "POST",
+    skipAuth: true,
+    body: JSON.stringify({ email }),
+  });
+}
+
 export function getMe() {
   return apiRequest<UserProfile>("/api/v1/auth/me");
+}
+
+export function updateMe(data: { display_name?: string | null }) {
+  return apiRequest<UserProfile>("/api/v1/auth/me", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+export function changePassword(current_password: string, new_password: string) {
+  return apiRequest<void>("/api/v1/auth/me/password", {
+    method: "POST",
+    body: JSON.stringify({ current_password, new_password }),
+  });
 }
 
 export function completeTour() {

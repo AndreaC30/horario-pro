@@ -16,6 +16,8 @@ export class ApiError extends Error {
 
 type RequestOptions = RequestInit & {
   skipAuth?: boolean;
+  /** Return response body as text instead of JSON. */
+  rawText?: boolean;
 };
 
 function isMutation(method?: string): boolean {
@@ -24,7 +26,7 @@ function isMutation(method?: string): boolean {
 }
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const { skipAuth = false, headers, ...rest } = options;
+  const { skipAuth = false, rawText = false, headers, ...rest } = options;
 
   if (!isOnline() && isMutation(rest.method)) {
     throw new ApiError(OFFLINE_MESSAGE, 0);
@@ -59,10 +61,9 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     return undefined as T;
   }
 
-  const contentType = response.headers.get("content-type");
-  const payload = contentType?.includes("application/json") ? await response.json() : null;
-
   if (!response.ok) {
+    const contentType = response.headers.get("content-type");
+    const payload = contentType?.includes("application/json") ? await response.json() : null;
     let message = response.statusText;
     if (payload && typeof payload === "object" && "detail" in payload) {
       const detail = (payload as { detail: unknown }).detail;
@@ -71,6 +72,12 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     throw new ApiError(message || "Error de API", response.status, payload);
   }
 
+  if (rawText) {
+    return (await response.text()) as T;
+  }
+
+  const contentType = response.headers.get("content-type");
+  const payload = contentType?.includes("application/json") ? await response.json() : null;
   return payload as T;
 }
 

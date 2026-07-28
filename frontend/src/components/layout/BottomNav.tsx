@@ -1,11 +1,18 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { IoCalendarOutline, IoHomeOutline, IoPeopleOutline, IoTimeOutline } from "react-icons/io5";
+import {
+  IoCalendarClearOutline,
+  IoCalendarOutline,
+  IoHomeOutline,
+  IoPeopleOutline,
+  IoTimeOutline,
+} from "react-icons/io5";
 import type { IconType } from "react-icons";
 
 const tabs: { to: string; label: string; Icon: IconType; tour?: string }[] = [
   { to: "/dashboard", label: "Inicio", Icon: IoHomeOutline, tour: "nav-inicio" },
   { to: "/jornada/nueva", label: "Jornada", Icon: IoTimeOutline, tour: "nav-jornada" },
   { to: "/historial", label: "Historial", Icon: IoCalendarOutline, tour: "nav-historial" },
+  { to: "/calendario", label: "Calendario", Icon: IoCalendarClearOutline },
   { to: "/clientes", label: "Clientes", Icon: IoPeopleOutline, tour: "nav-clientes" },
 ];
 

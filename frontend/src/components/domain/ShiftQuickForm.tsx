@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 import { useOnlineStatus } from "../../hooks/useOnlineStatus";
+import { getLastShift } from "../../services/shiftService";
 import type { Client, ShiftInput } from "../../types/api";
 import { OFFLINE_MESSAGE } from "../../utils/network";
 import { previewShift, validateShiftFields } from "../../utils/shiftForm";
@@ -10,6 +11,8 @@ import {
   formatHours,
   fromDatetimeLocalValue,
   getLastClientId,
+  replayLastShiftOntoToday,
+  setDurationEndingNow,
   setEndToNow,
   setLastClientId,
   setStartHoursAgo,
@@ -28,6 +31,8 @@ type ShiftQuickFormProps = {
   onSubmit: (data: ShiftInput) => Promise<void>;
   onDirtyChange?: (dirty: boolean) => void;
   onRequestNewClient?: () => void;
+  /** Hide repeat/time chips when editing an existing shift. */
+  showQuickActions?: boolean;
 };
 
 export function ShiftQuickForm({
@@ -37,6 +42,7 @@ export function ShiftQuickForm({
   onSubmit,
   onDirtyChange,
   onRequestNewClient,
+  showQuickActions = true,
 }: ShiftQuickFormProps) {
   const defaults = defaultShiftTimes();
   const [clientId, setClientId] = useState<number | "">(
@@ -56,6 +62,8 @@ export function ShiftQuickForm({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState(false);
+  const [repeatBusy, setRepeatBusy] = useState(false);
+  const [repeatHint, setRepeatHint] = useState<string | null>(null);
   const online = useOnlineStatus();
 
   useEffect(() => {
@@ -63,6 +71,20 @@ export function ShiftQuickForm({
       setClientId(preferredClientId);
     }
   }, [preferredClientId]);
+
+  useEffect(() => {
+    if (!initial) return;
+    if (initial.client_id) setClientId(initial.client_id);
+    if (initial.start_time) setStartTime(toDatetimeLocalValue(initial.start_time));
+    if (initial.end_time) setEndTime(toDatetimeLocalValue(initial.end_time));
+    if (initial.break_minutes !== undefined) setBreakMinutes(String(initial.break_minutes));
+    if (initial.driving_extra !== undefined) {
+      const d = Number(initial.driving_extra);
+      setDrivingEnabled(d > 0);
+      setDrivingExtra(d > 0 ? String(d) : "");
+    }
+    if (initial.notes !== undefined) setNotes(initial.notes ?? "");
+  }, [initial]);
 
   const markDirty = () => onDirtyChange?.(true);
 
@@ -79,6 +101,40 @@ export function ShiftQuickForm({
     () => previewShift(selectedClient, startTime, endTime, breakNum, drivingNum),
     [selectedClient, startTime, endTime, breakNum, drivingNum],
   );
+
+  const applyDuration = (hours: number) => {
+    const range = setDurationEndingNow(hours);
+    setStartTime(range.start);
+    setEndTime(range.end);
+    markDirty();
+  };
+
+  const handleRepeatLast = async () => {
+    setRepeatBusy(true);
+    setRepeatHint(null);
+    try {
+      const last = await getLastShift();
+      if (!last) {
+        setRepeatHint("Aún no tienes jornadas para repetir.");
+        return;
+      }
+      const times = replayLastShiftOntoToday(last.start_time, last.end_time);
+      setClientId(last.client_id);
+      setStartTime(times.start);
+      setEndTime(times.end);
+      setBreakMinutes(String(last.break_minutes ?? 0));
+      const driving = Number(last.driving_extra);
+      setDrivingEnabled(driving > 0);
+      setDrivingExtra(driving > 0 ? String(driving) : "");
+      setNotes(last.notes ?? "");
+      markDirty();
+      setRepeatHint(`Repetida: ${last.client.name}`);
+    } catch (err) {
+      setRepeatHint(err instanceof Error ? err.message : "No se pudo cargar la última jornada");
+    } finally {
+      setRepeatBusy(false);
+    }
+  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
@@ -112,8 +168,27 @@ export function ShiftQuickForm({
     }
   };
 
+  const chipClass =
+    "min-h-touch rounded-lg bg-[var(--bg-soft)] px-3 text-sm font-medium text-text-primary transition hover:bg-[var(--bg-surface-elevated)] disabled:opacity-50";
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
+      {showQuickActions ? (
+        <div className="space-y-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="w-full"
+            loading={repeatBusy}
+            disabled={!online}
+            onClick={() => void handleRepeatLast()}
+          >
+            Repetir última jornada
+          </Button>
+          {repeatHint ? <p className="text-xs text-text-secondary">{repeatHint}</p> : null}
+        </div>
+      ) : null}
+
       <ClientSelect
         clients={clients}
         value={clientId}
@@ -158,28 +233,36 @@ export function ShiftQuickForm({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          className="min-h-touch rounded-lg bg-[var(--bg-soft)] px-3 text-sm font-medium text-text-primary transition hover:bg-[var(--bg-surface-elevated)]"
-          onClick={() => {
-            setEndTime(setEndToNow());
-            markDirty();
-          }}
-        >
-          Ahora (fin)
-        </button>
-        <button
-          type="button"
-          className="min-h-touch rounded-lg bg-[var(--bg-soft)] px-3 text-sm font-medium text-text-primary transition hover:bg-[var(--bg-surface-elevated)]"
-          onClick={() => {
-            setStartTime(setStartHoursAgo(8));
-            markDirty();
-          }}
-        >
-          Hace 8 h (inicio)
-        </button>
-      </div>
+      {showQuickActions ? (
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className={chipClass} onClick={() => applyDuration(8)}>
+            8 h
+          </button>
+          <button type="button" className={chipClass} onClick={() => applyDuration(4)}>
+            4 h
+          </button>
+          <button
+            type="button"
+            className={chipClass}
+            onClick={() => {
+              setEndTime(setEndToNow());
+              markDirty();
+            }}
+          >
+            Fin = ahora
+          </button>
+          <button
+            type="button"
+            className={chipClass}
+            onClick={() => {
+              setStartTime(setStartHoursAgo(8));
+              markDirty();
+            }}
+          >
+            Inicio = ahora − 8 h
+          </button>
+        </div>
+      ) : null}
 
       {preview ? (
         <p className="rounded-xl bg-[var(--bg-soft)] px-3 py-2.5 text-sm text-text-secondary">

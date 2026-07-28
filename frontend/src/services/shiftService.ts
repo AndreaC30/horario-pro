@@ -23,6 +23,21 @@ export function getShift(id: number) {
   return apiRequest<Shift>(`/api/v1/shifts/${id}`);
 }
 
+export function getLastShift() {
+  return apiRequest<Shift | null>("/api/v1/shifts/last");
+}
+
+export function exportShiftsCsv(params?: { from?: string; to?: string; client_id?: number }) {
+  const search = new URLSearchParams();
+  if (params?.from) search.set("from", params.from);
+  if (params?.to) search.set("to", params.to);
+  if (params?.client_id) search.set("client_id", String(params.client_id));
+  const query = search.toString();
+  return apiRequest<string>(`/api/v1/shifts/export${query ? `?${query}` : ""}`, {
+    rawText: true,
+  });
+}
+
 export function createShift(data: ShiftInput) {
   return apiRequest<Shift>("/api/v1/shifts", {
     method: "POST",

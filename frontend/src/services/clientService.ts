@@ -1,8 +1,9 @@
 import type { Client, ClientInput } from "../types/api";
 import { apiRequest } from "./apiClient";
 
-export function listClients() {
-  return apiRequest<Client[]>("/api/v1/clients");
+export function listClients(includeArchived = false) {
+  const q = includeArchived ? "?include_archived=true" : "";
+  return apiRequest<Client[]>(`/api/v1/clients${q}`);
 }
 
 export function createClient(data: ClientInput) {
@@ -17,6 +18,14 @@ export function updateClient(id: number, data: Partial<ClientInput>) {
     method: "PATCH",
     body: JSON.stringify(data),
   });
+}
+
+export function archiveClient(id: number) {
+  return apiRequest<Client>(`/api/v1/clients/${id}/archive`, { method: "POST" });
+}
+
+export function unarchiveClient(id: number) {
+  return apiRequest<Client>(`/api/v1/clients/${id}/unarchive`, { method: "POST" });
 }
 
 export function deleteClient(id: number) {

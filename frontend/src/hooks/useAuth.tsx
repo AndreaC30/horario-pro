@@ -41,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser({
         id: 0,
         email: "dev@local",
+        display_name: "Dev",
         tour_completed: false,
         created_at: new Date().toISOString(),
       });

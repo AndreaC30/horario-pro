@@ -19,8 +19,16 @@ export function monthBounds(): { from: string; to: string } {
   return { from: start.toISOString(), to: end.toISOString() };
 }
 
+export function lastMonthBounds(): { from: string; to: string } {
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const end = new Date(now.getFullYear(), now.getMonth(), 1);
+  return { from: start.toISOString(), to: end.toISOString() };
+}
+
 export const HISTORY_PRESETS: { id: string; label: string; getRange: () => { from?: string; to?: string } }[] = [
-  { id: "week", label: "Esta semana", getRange: weekBounds },
   { id: "month", label: "Este mes", getRange: monthBounds },
+  { id: "last_month", label: "Mes pasado", getRange: lastMonthBounds },
+  { id: "week", label: "Esta semana", getRange: weekBounds },
   { id: "all", label: "Todo", getRange: () => ({}) },
 ];

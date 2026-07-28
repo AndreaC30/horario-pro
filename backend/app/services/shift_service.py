@@ -35,6 +35,87 @@ def _to_shift_read(shift: Shift) -> ShiftRead:
     )
 
 
+def get_last_shift(db: Session, user_id: int) -> ShiftRead | None:
+    shift = db.scalar(
+        select(Shift)
+        .options(joinedload(Shift.client))
+        .where(Shift.user_id == user_id)
+        .order_by(Shift.start_time.desc())
+        .limit(1),
+    )
+    if shift is None:
+        return None
+    return _to_shift_read(shift)
+
+
+def export_shifts_csv(
+    db: Session,
+    user_id: int,
+    *,
+    date_from: datetime | None = None,
+    date_to: datetime | None = None,
+    client_id: int | None = None,
+) -> str:
+    import csv
+    import io
+
+    shifts = list_shifts(
+        db,
+        user_id,
+        date_from=date_from,
+        date_to=date_to,
+        client_id=client_id,
+        limit=100,
+        offset=0,
+    )
+    # Export may need more than 100; page until empty
+    all_rows = list(shifts)
+    offset = 100
+    while len(shifts) == 100:
+        shifts = list_shifts(
+            db,
+            user_id,
+            date_from=date_from,
+            date_to=date_to,
+            client_id=client_id,
+            limit=100,
+            offset=offset,
+        )
+        all_rows.extend(shifts)
+        offset += 100
+
+    buf = io.StringIO()
+    writer = csv.writer(buf)
+    writer.writerow(
+        [
+            "id",
+            "cliente",
+            "inicio",
+            "fin",
+            "descanso_min",
+            "horas",
+            "extra_conduccion",
+            "estimado_eur",
+            "notas",
+        ],
+    )
+    for s in all_rows:
+        writer.writerow(
+            [
+                s.id,
+                s.client.name,
+                s.start_time.isoformat(),
+                s.end_time.isoformat(),
+                s.break_minutes,
+                str(s.worked_hours),
+                str(s.driving_extra),
+                "" if s.estimated_pay is None else str(s.estimated_pay),
+                s.notes or "",
+            ],
+        )
+    return buf.getvalue()
+
+
 def list_shifts(
     db: Session,
     user_id: int,
@@ -74,7 +155,12 @@ def get_shift(db: Session, user_id: int, shift_id: int) -> ShiftRead:
 
 
 def create_shift(db: Session, user_id: int, data: ShiftCreate) -> ShiftRead:
-    client_service.get_client(db, user_id, data.client_id)
+    client = client_service.get_client(db, user_id, data.client_id)
+    if client.archived_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No se puede registrar una jornada con un cliente archivado",
+        )
     shift = Shift(
         user_id=user_id,
         client_id=data.client_id,

@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     bootstrap_user_email: str | None = None
     bootstrap_user_password: str | None = None
 
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_user: str = ""
+    smtp_password: str = ""
+    smtp_from: str = ""
+    smtp_use_tls: bool = True
+    smtp_use_ssl: bool = False
+
     @model_validator(mode="after")
     def validate_secret_key(self) -> "Settings":
         if self.environment == "production" and self.secret_key in ("", "change-me-in-production"):

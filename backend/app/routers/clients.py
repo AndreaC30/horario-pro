@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, get_db
@@ -11,10 +11,11 @@ router = APIRouter(prefix="/api/v1/clients", tags=["clients"])
 
 @router.get("", response_model=list[ClientRead])
 def list_clients(
+    include_archived: bool = Query(default=False),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[ClientRead]:
-    clients = client_service.list_clients(db, current_user.id)
+    clients = client_service.list_clients(db, current_user.id, include_archived=include_archived)
     return [ClientRead.model_validate(client) for client in clients]
 
 
@@ -46,6 +47,26 @@ def update_client(
     current_user: User = Depends(get_current_user),
 ) -> ClientRead:
     client = client_service.update_client(db, current_user.id, client_id, body)
+    return ClientRead.model_validate(client)
+
+
+@router.post("/{client_id}/archive", response_model=ClientRead)
+def archive_client(
+    client_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ClientRead:
+    client = client_service.archive_client(db, current_user.id, client_id)
+    return ClientRead.model_validate(client)
+
+
+@router.post("/{client_id}/unarchive", response_model=ClientRead)
+def unarchive_client(
+    client_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ClientRead:
+    client = client_service.unarchive_client(db, current_user.id, client_id)
     return ClientRead.model_validate(client)
 
 

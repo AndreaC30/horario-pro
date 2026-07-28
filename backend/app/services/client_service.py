@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -7,12 +9,11 @@ from app.models.shift import Shift
 from app.schemas.client import ClientCreate, ClientUpdate
 
 
-def list_clients(db: Session, user_id: int) -> list[Client]:
-    return list(
-        db.scalars(
-            select(Client).where(Client.user_id == user_id).order_by(Client.name.asc()),
-        ).all(),
-    )
+def list_clients(db: Session, user_id: int, *, include_archived: bool = False) -> list[Client]:
+    query = select(Client).where(Client.user_id == user_id)
+    if not include_archived:
+        query = query.where(Client.archived_at.is_(None))
+    return list(db.scalars(query.order_by(Client.name.asc())).all())
 
 
 def get_client(db: Session, user_id: int, client_id: int) -> Client:
@@ -46,6 +47,26 @@ def update_client(db: Session, user_id: int, client_id: int, data: ClientUpdate)
         setattr(client, field, value)
     db.commit()
     db.refresh(client)
+    return client
+
+
+def archive_client(db: Session, user_id: int, client_id: int) -> Client:
+    client = get_client(db, user_id, client_id)
+    if client.archived_at is None:
+        client.archived_at = datetime.now(timezone.utc)
+        db.add(client)
+        db.commit()
+        db.refresh(client)
+    return client
+
+
+def unarchive_client(db: Session, user_id: int, client_id: int) -> Client:
+    client = get_client(db, user_id, client_id)
+    if client.archived_at is not None:
+        client.archived_at = None
+        db.add(client)
+        db.commit()
+        db.refresh(client)
     return client
 
 
