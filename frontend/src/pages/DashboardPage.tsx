@@ -66,15 +66,11 @@ export function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <SkeletonBlock className="h-16" />
-        <div className="grid grid-cols-2 gap-3">
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-          <SkeletonBlock className="h-24" />
-        </div>
-        <SkeletonBlock className="h-32" />
+      <div className="space-y-6">
+        <SkeletonBlock className="h-36" />
+        <SkeletonBlock className="h-28" />
+        <SkeletonBlock className="h-40" />
+        <SkeletonBlock className="h-40" />
       </div>
     );
   }
@@ -84,140 +80,146 @@ export function DashboardPage() {
   }
 
   const isEmpty = data.recent_shifts.length === 0 && Number(data.month.hours) === 0;
+  const todayEmpty = Number(data.today.hours) === 0;
 
   return (
     <>
-      <div className="space-y-4 pb-20">
-        {/* Hero denso estilo GDH — acento azul WorkShift */}
-        <section
-          className="card-accent animate-fade-up overflow-hidden"
-          aria-live="polite"
-        >
-          <div className="grid gap-3 sm:grid-cols-[minmax(0,1.1fr)_1fr] sm:items-stretch sm:gap-4">
-            <div className="flex flex-col justify-center rounded-lg border border-border bg-[var(--bg-soft)] p-4">
-              <p className={TYPE_EYEBROW}>Hoy</p>
-              <h2 className={`${TYPE_DISPLAY} mt-1 capitalize`}>{todayLabel()}</h2>
-              <p className={`${TYPE_HERO_NUMBER} mt-2`}>
-                {formatHours(data.today.hours)}
-              </p>
-              <p className={`${TYPE_BODY} mt-1`}>
-                Estimado{" "}
-                <span className="font-semibold tabular-nums text-text-primary">
-                  {formatMoney(data.today.estimated_money)}
-                </span>
-              </p>
-            </div>
+      <div className="space-y-8 pb-20">
+        {/* ——— 1. HOY ——— */}
+        <section aria-labelledby="section-hoy" className="space-y-3">
+          <div>
+            <p className={TYPE_EYEBROW}>Hoy</p>
+            <h2 id="section-hoy" className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>
+              {todayLabel()}
+            </h2>
+          </div>
 
-            <div className="grid grid-cols-2 gap-2">
-              <StatCard
-                magnetic
-                label="Semana"
-                value={parseFloat(data.week.hours) || 0}
-                suffix="h"
-                subvalue={parseFloat(data.week.estimated_money) || 0}
-                subSuffix="€"
-              />
-              <StatCard
-                magnetic
-                label="Mes"
-                value={parseFloat(data.month.hours) || 0}
-                suffix="h"
-                subvalue={parseFloat(data.month.estimated_money) || 0}
-                subSuffix="€"
-              />
-              <StatCard
-                magnetic
-                label="€ hoy"
-                value={parseFloat(data.today.estimated_money) || 0}
-                suffix="€"
-                subvalue={parseFloat(data.today.hours) || 0}
-                subSuffix="h"
-              />
-              <StatCard
-                magnetic
-                label="€ mes"
-                value={parseFloat(data.month.estimated_money) || 0}
-                suffix="€"
-                subvalue={parseFloat(data.month.hours) || 0}
-                subSuffix="h"
-              />
-            </div>
+          <div className="card-accent" aria-live="polite">
+            {todayEmpty ? (
+              <div className="space-y-2">
+                <p className={`${TYPE_HERO_NUMBER}`}>0 h</p>
+                <p className={TYPE_BODY}>
+                  Aún no has registrado horas hoy. Cuando registres una jornada, verás aquí el
+                  estimado del día.
+                </p>
+                <Link to="/jornada/nueva" className="mt-2 inline-block sm:hidden">
+                  <Button type="button" className="w-full">
+                    + Nueva jornada
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div>
+                <p className={TYPE_HERO_NUMBER}>{formatHours(data.today.hours)}</p>
+                <p className={`${TYPE_BODY} mt-1`}>
+                  Estimado{" "}
+                  <span className="font-semibold tabular-nums text-text-primary">
+                    {formatMoney(data.today.estimated_money)}
+                  </span>
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
-        {/* Month navigator */}
-        <div className="animate-fade-up stagger-1 flex items-center justify-between rounded-[10px] border border-border bg-surface px-2 py-1.5">
-          <button
-            type="button"
-            onClick={goPrevMonth}
-            className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
-            aria-label="Mes anterior"
-          >
-            <PiCaretLeft className="h-5 w-5" />
-          </button>
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.06em] text-text-primary capitalize sm:text-sm">
-            {monthLabel(year, month)}
-          </span>
-          <button
-            type="button"
-            onClick={goNextMonth}
-            disabled={isCurrentMonth}
-            className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
-              isCurrentMonth
-                ? "cursor-default text-text-muted"
-                : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
-            }`}
-            aria-label="Mes siguiente"
-          >
-            <PiCaretRight className="h-5 w-5" />
-          </button>
-        </div>
-
-        {/* Desktop CTA */}
-        <div className="animate-fade-up stagger-2 hidden sm:block">
-          <Link to="/jornada/nueva" className="block">
-            <Button className="w-full">+ Nueva jornada</Button>
-          </Link>
-        </div>
-
-        {/* Resumen mes compacto */}
-        {Number(data.month.hours) > 0 ? (
-          <div className="animate-fade-up stagger-3">
-            <div className="rounded-lg border border-[var(--accent-border)] bg-[var(--accent-muted)] px-4 py-3">
-              <p className={TYPE_EYEBROW}>Resumen del mes</p>
-              <p className="mt-1 text-sm text-text-secondary">
-                <span className="font-display text-base font-semibold tabular-nums text-primary">
-                  {formatHours(data.month.hours)}
-                </span>
-                {" · "}
-                <span className="font-display text-base font-semibold tabular-nums text-text-primary">
-                  {formatMoney(data.month.estimated_money)}
-                </span>
-              </p>
+        {/* ——— 2. ESTE MES ——— */}
+        <section aria-labelledby="section-mes" className="space-y-3">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className={TYPE_EYEBROW}>Este mes</p>
+              <h2 id="section-mes" className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>
+                {monthLabel(year, month)}
+              </h2>
+            </div>
+            <div className="flex items-center rounded-[10px] border border-border bg-surface px-1 py-0.5">
+              <button
+                type="button"
+                onClick={goPrevMonth}
+                className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
+                aria-label="Mes anterior"
+              >
+                <PiCaretLeft className="h-5 w-5" />
+              </button>
+              <button
+                type="button"
+                onClick={goNextMonth}
+                disabled={isCurrentMonth}
+                className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
+                  isCurrentMonth
+                    ? "cursor-default text-text-muted"
+                    : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
+                }`}
+                aria-label="Mes siguiente"
+              >
+                <PiCaretRight className="h-5 w-5" />
+              </button>
             </div>
           </div>
-        ) : null}
 
-        {/* Client breakdown */}
-        <div className="animate-fade-up stagger-4">
-          <ClientEarningsBreakdown
-            week={data.by_client_week ?? []}
-            month={data.by_client_month ?? []}
-          />
-        </div>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-[1fr_1fr_auto] lg:items-stretch">
+            <StatCard
+              label="Horas"
+              value={parseFloat(data.month.hours) || 0}
+              suffix="h"
+            />
+            <StatCard
+              label="Ingresos"
+              value={parseFloat(data.month.estimated_money) || 0}
+              suffix="€"
+            />
+            <div className="col-span-2 hidden sm:col-span-2 sm:block lg:col-span-1 lg:flex lg:items-stretch">
+              <Link to="/jornada/nueva" className="block w-full lg:flex lg:flex-1">
+                <Button className="h-full min-h-touch w-full">+ Nueva jornada</Button>
+              </Link>
+            </div>
+          </div>
 
-        {/* Driving extras */}
-        <div className="animate-fade-up stagger-5">
-          <DrivingExtrasSummary
-            today={data.today.driving_extras}
-            week={data.week.driving_extras}
-            month={data.month.driving_extras}
-          />
-        </div>
+          {/* Semana como contexto secundario (una sola línea, no 4 cards) */}
+          <p className={`${TYPE_BODY} text-text-muted`}>
+            Semana en curso:{" "}
+            <span className="font-mono tabular-nums text-text-secondary">
+              {formatHours(data.week.hours)}
+            </span>
+            {" · "}
+            <span className="font-mono tabular-nums text-text-secondary">
+              {formatMoney(data.week.estimated_money)}
+            </span>
+          </p>
+        </section>
 
-        {/* Recent shifts */}
-        <div className="animate-fade-up stagger-6">
-          <Card title="Últimas jornadas">
+        {/* ——— 3. POR CLIENTE (+ extras) ——— */}
+        <section aria-labelledby="section-clientes" className="space-y-3">
+          <div>
+            <p className={TYPE_EYEBROW}>Desglose</p>
+            <h2 id="section-clientes" className={`${TYPE_DISPLAY} mt-0.5`}>
+              Por cliente
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+            <ClientEarningsBreakdown
+              week={data.by_client_week ?? []}
+              month={data.by_client_month ?? []}
+              hideMonthTotal
+            />
+            <DrivingExtrasSummary
+              today={data.today.driving_extras}
+              week={data.week.driving_extras}
+              month={data.month.driving_extras}
+            />
+          </div>
+        </section>
+
+        {/* ——— 4. ACTIVIDAD ——— */}
+        <section aria-labelledby="section-actividad" className="space-y-3">
+          <div>
+            <p className={TYPE_EYEBROW}>Actividad</p>
+            <h2 id="section-actividad" className={`${TYPE_DISPLAY} mt-0.5`}>
+              Últimas jornadas
+            </h2>
+          </div>
+
+          <Card>
             {isEmpty ? (
               <EmptyState
                 title="Aún no hay jornadas"
@@ -240,7 +242,7 @@ export function DashboardPage() {
               </>
             )}
           </Card>
-        </div>
+        </section>
       </div>
 
       <Fab to="/jornada/nueva" label="+ Nueva jornada" />
