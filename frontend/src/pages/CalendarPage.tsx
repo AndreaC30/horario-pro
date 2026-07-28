@@ -162,7 +162,6 @@ export function CalendarPage() {
 
                 const key = dayKey(year, month, day);
                 const dayShifts = byDay.get(key) ?? [];
-                const colors = [...new Set(dayShifts.map((s) => s.client.color))].slice(0, 3);
                 const selected = selectedDay === day;
                 const isToday =
                   year === now.getFullYear() &&
@@ -170,7 +169,7 @@ export function CalendarPage() {
                   day === now.getDate();
                 const future = isFutureDay(year, month, day);
                 const hasWork = dayShifts.length > 0;
-                const accent = colors[0];
+                const accent = dayShifts[0]?.client.color;
 
                 return (
                   <button
@@ -178,23 +177,25 @@ export function CalendarPage() {
                     type="button"
                     disabled={future}
                     onClick={() => setSelectedDay(day)}
-                    className={`relative flex aspect-square flex-col items-center justify-between rounded-xl px-1 py-1.5 text-sm transition ${
+                    className={`relative flex aspect-square flex-col items-center justify-center overflow-hidden rounded-xl text-sm transition ${
                       future
                         ? "cursor-default text-text-muted/45"
                         : selected
-                          ? "bg-primary/20 text-text-primary shadow-card ring-1 ring-primary/50"
+                          ? "bg-primary/15 text-text-primary ring-1 ring-primary/40"
                           : hasWork
                             ? "bg-[var(--bg-soft)] text-text-primary hover:bg-[var(--bg-surface-elevated)]"
                             : "text-text-secondary hover:bg-[var(--bg-soft)]"
                     }`}
-                    style={
-                      hasWork && !selected && !future && accent
-                        ? { boxShadow: `inset 0 -2px 0 0 ${accent}` }
-                        : undefined
-                    }
                     aria-label={`Día ${day}${dayShifts.length ? `, ${dayShifts.length} jornadas` : ""}${future ? ", futuro" : ""}`}
                     aria-pressed={selected}
                   >
+                    {hasWork && !future && accent ? (
+                      <span
+                        className="absolute left-0 top-2 bottom-2 w-1 rounded-full"
+                        style={{ backgroundColor: accent }}
+                        aria-hidden
+                      />
+                    ) : null}
                     <span
                       className={`flex h-7 w-7 items-center justify-center rounded-full text-sm tabular-nums ${
                         isToday
@@ -205,17 +206,6 @@ export function CalendarPage() {
                       }`}
                     >
                       {day}
-                    </span>
-                    <span className="flex min-h-[0.4rem] items-center justify-center gap-0.5">
-                      {!future &&
-                        colors.map((c) => (
-                          <span
-                            key={c}
-                            className="h-1.5 w-1.5 rounded-full"
-                            style={{ backgroundColor: c }}
-                            aria-hidden
-                          />
-                        ))}
                     </span>
                   </button>
                 );
