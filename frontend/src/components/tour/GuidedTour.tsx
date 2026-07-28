@@ -4,14 +4,14 @@
 import { useCallback, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 
-import type { TourStep } from "../lib/tour-steps";
+import type { TourStep } from "../../lib/tour-steps";
 import {
   tourMeasureTarget,
   tourScrollLockDisable,
   tourScrollLockEnable,
   tourScrollToTarget,
   tourWaitForTarget,
-} from "../lib/tour-scroll-lock";
+} from "../../lib/tour-scroll-lock";
 import { Button } from "../ui/Button";
 
 type Props = {
