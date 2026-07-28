@@ -3,12 +3,12 @@ import { useState } from "react";
 import { ClientForm } from "../components/domain/ClientForm";
 import { ClientList } from "../components/domain/ClientList";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { Modal } from "../components/ui/Modal";
 import { useClients } from "../hooks/useClients";
+import { TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import type { Client } from "../types/api";
 
 export function ClientsPage() {
@@ -50,26 +50,34 @@ export function ClientsPage() {
   };
 
   return (
-    <div className="space-y-4">
-      <Button className="w-full" type="button" onClick={openCreate}>
-        + Nuevo cliente
-      </Button>
+    <div className="space-y-8 pb-8">
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className={TYPE_EYEBROW}>Agenda</p>
+            <h2 className={`${TYPE_DISPLAY} mt-0.5`}>Clientes</h2>
+          </div>
+          <Button className="w-full sm:w-auto" type="button" onClick={openCreate}>
+            + Nuevo cliente
+          </Button>
+        </div>
 
-      {loading ? <LoadingSpinner /> : null}
-      {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
+        {loading ? <LoadingSpinner /> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
 
-      {!loading && !error ? (
-        <Card title="Clientes">
-          <ClientList
-            clients={clients}
-            onEdit={openEdit}
-            onDelete={(client) => {
-              setDeleteError(null);
-              setToDelete(client);
-            }}
-          />
-        </Card>
-      ) : null}
+        {!loading && !error ? (
+          <div className="border-t border-border/70 pt-3">
+            <ClientList
+              clients={clients}
+              onEdit={openEdit}
+              onDelete={(client) => {
+                setDeleteError(null);
+                setToDelete(client);
+              }}
+            />
+          </div>
+        ) : null}
+      </section>
 
       <ConfirmModal
         open={Boolean(toDelete)}

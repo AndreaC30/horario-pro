@@ -4,13 +4,12 @@ import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ShiftList } from "../components/domain/ShiftList";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
 import { useShifts } from "../hooks/useShifts";
 import { deleteShift } from "../services/shiftService";
-import { TYPE_EYEBROW } from "../lib/typography";
+import { TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import type { Shift } from "../types/api";
 import { HISTORY_PRESETS } from "../utils/dateRanges";
 
@@ -88,44 +87,53 @@ export function HistoryPage() {
     : "";
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <div className="mb-3 flex items-center justify-between">
-          <button
-            type="button"
-            onClick={goPrevMonth}
-            className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
-            aria-label="Mes anterior"
-          >
-            <PiCaretLeft className="h-5 w-5" />
-          </button>
-          <span className="font-mono text-xs font-semibold uppercase tracking-[0.06em] text-text-primary capitalize sm:text-sm">
-            {monthLabel(year, month)}
-          </span>
-          <button
-            type="button"
-            onClick={goNextMonth}
-            disabled={isCurrentMonth}
-            className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
-              isCurrentMonth
-                ? "cursor-default text-text-muted"
-                : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
-            }`}
-            aria-label="Mes siguiente"
-          >
-            <PiCaretRight className="h-5 w-5" />
-          </button>
+    <div className="space-y-8 pb-8">
+      <section className="space-y-3">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className={TYPE_EYEBROW}>Periodo</p>
+            <h2 className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>{monthLabel(year, month)}</h2>
+          </div>
+          <div className="flex items-center gap-0.5">
+            <button
+              type="button"
+              onClick={goPrevMonth}
+              className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
+              aria-label="Mes anterior"
+            >
+              <PiCaretLeft className="h-5 w-5" />
+            </button>
+            <button
+              type="button"
+              onClick={goNextMonth}
+              disabled={isCurrentMonth}
+              className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
+                isCurrentMonth
+                  ? "cursor-default text-text-muted"
+                  : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
+              }`}
+              aria-label="Mes siguiente"
+            >
+              <PiCaretRight className="h-5 w-5" />
+            </button>
+          </div>
         </div>
-        <p className={TYPE_EYEBROW}>Periodo</p>
-        <div className="mt-2 flex flex-wrap gap-2">
+
+        <div
+          className="grid grid-cols-3 gap-1 rounded-xl bg-[var(--bg-soft)] p-1"
+          role="tablist"
+          aria-label="Filtro de fechas"
+        >
           {HISTORY_PRESETS.map((preset) => (
             <button
               key={preset.id}
               type="button"
-              className={`min-h-touch rounded-lg border px-3 text-sm font-medium transition ${
+              role="tab"
+              aria-selected={presetId === preset.id}
+              className={`min-h-11 rounded-lg px-2 text-sm font-medium transition ${
                 presetId === preset.id
-                  ? "border-primary bg-primary text-primary-foreground shadow-card"
-                  : "border-border bg-[var(--bg-soft)] text-text-secondary hover:border-[var(--border-hover)] hover:text-text-primary"
+                  ? "bg-surface text-text-primary shadow-card"
+                  : "text-text-muted hover:text-text-primary"
               }`}
               onClick={() => setPresetId(preset.id)}
             >
@@ -133,30 +141,37 @@ export function HistoryPage() {
             </button>
           ))}
         </div>
-      </Card>
+      </section>
 
-      {loading ? <LoadingSpinner /> : null}
-      {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
-      {!loading && !error ? (
-        <Card title="Historial">
-          <ShiftList
-            shifts={shifts}
-            emptyTitle="Aún no hay jornadas"
-            emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
-            showDelete
-            embedded
-            onDelete={(shift) => {
-              setDeleteError(null);
-              setToDelete(shift);
-            }}
-            emptyAction={
-              <Link to="/jornada/nueva">
-                <Button className="w-full">+ Nueva jornada</Button>
-              </Link>
-            }
-          />
-        </Card>
-      ) : null}
+      <section className="space-y-3">
+        <div>
+          <p className={TYPE_EYEBROW}>Listado</p>
+          <h2 className={`${TYPE_DISPLAY} mt-0.5`}>Jornadas</h2>
+        </div>
+
+        {loading ? <LoadingSpinner /> : null}
+        {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
+        {!loading && !error ? (
+          <div className="border-t border-border/70 pt-3">
+            <ShiftList
+              shifts={shifts}
+              emptyTitle="Aún no hay jornadas"
+              emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
+              showDelete
+              embedded
+              onDelete={(shift) => {
+                setDeleteError(null);
+                setToDelete(shift);
+              }}
+              emptyAction={
+                <Link to="/jornada/nueva">
+                  <Button className="w-full">+ Nueva jornada</Button>
+                </Link>
+              }
+            />
+          </div>
+        ) : null}
+      </section>
 
       <ConfirmModal
         open={Boolean(toDelete)}

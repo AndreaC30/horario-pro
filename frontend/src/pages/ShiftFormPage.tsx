@@ -4,7 +4,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ClientForm } from "../components/domain/ClientForm";
 import { ShiftQuickForm } from "../components/domain/ShiftQuickForm";
 import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
 import { EmptyState } from "../components/ui/EmptyState";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
@@ -12,6 +11,7 @@ import { Modal } from "../components/ui/Modal";
 import { Toast } from "../components/ui/Toast";
 import { useClients } from "../hooks/useClients";
 import { useUnsavedGuard } from "../hooks/useUnsavedGuard";
+import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import { createShift, getShift, updateShift } from "../services/shiftService";
 import type { ShiftInput } from "../types/api";
 
@@ -74,33 +74,50 @@ export function ShiftFormPage() {
 
   return (
     <>
-      <Card title={isEdit ? "Editar jornada" : "Nueva jornada"}>
-        {clients.length === 0 && !isEdit ? (
-          <EmptyState
-            title="Primero necesitas un cliente"
-            description="Crea al menos un cliente o lugar para poder registrar horas."
-            action={
-              <Button type="button" className="w-full" onClick={() => setClientModalOpen(true)}>
-                + Nuevo cliente
-              </Button>
-            }
-          />
-        ) : (
-          <ShiftQuickForm
-            clients={clients}
-            initial={initial}
-            preferredClientId={newClientId}
-            onSubmit={handleSubmit}
-            onDirtyChange={setDirty}
-            onRequestNewClient={() => setClientModalOpen(true)}
-          />
-        )}
-        {clients.length === 0 ? (
-          <Link to="/clientes" className="mt-3 block text-center text-sm text-primary">
-            Ir a gestión de clientes
-          </Link>
-        ) : null}
-      </Card>
+      <div className="space-y-6 pb-8">
+        <div>
+          <p className={TYPE_EYEBROW}>Registro</p>
+          <h2 className={`${TYPE_DISPLAY} mt-0.5`}>
+            {isEdit ? "Editar jornada" : "Nueva jornada"}
+          </h2>
+          <p className={`${TYPE_BODY} mt-1`}>
+            {isEdit
+              ? "Ajusta los datos y guarda los cambios."
+              : "Cliente, inicio y fin. El resto es opcional."}
+          </p>
+        </div>
+
+        <div className="border-t border-border/70 pt-4">
+          {clients.length === 0 && !isEdit ? (
+            <EmptyState
+              title="Primero necesitas un cliente"
+              description="Crea al menos un cliente o lugar para poder registrar horas."
+              action={
+                <Button type="button" className="w-full" onClick={() => setClientModalOpen(true)}>
+                  + Nuevo cliente
+                </Button>
+              }
+            />
+          ) : (
+            <ShiftQuickForm
+              clients={clients}
+              initial={initial}
+              preferredClientId={newClientId}
+              onSubmit={handleSubmit}
+              onDirtyChange={setDirty}
+              onRequestNewClient={() => setClientModalOpen(true)}
+            />
+          )}
+          {clients.length === 0 ? (
+            <Link
+              to="/clientes"
+              className="mt-3 block text-center text-sm font-medium text-primary no-underline hover:text-primary-hover"
+            >
+              Ir a gestión de clientes
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       <Modal open={clientModalOpen} title="Nuevo cliente" onClose={() => setClientModalOpen(false)}>
         <ClientForm

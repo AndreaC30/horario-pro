@@ -14,20 +14,18 @@ export function ClientList({ clients, onEdit, onDelete }: ClientListProps) {
   }
 
   return (
-    <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+    <ul className="divide-y divide-border/80">
       {clients.map((client) => (
-        <li
-          key={client.id}
-          className="list-item min-w-0 justify-between gap-2 !py-2.5"
-        >
+        <li key={client.id} className="flex min-h-touch items-center justify-between gap-2 py-3 first:pt-0 last:pb-0">
           <div className="flex min-w-0 items-center gap-2.5">
             <span
-              className="h-3.5 w-3.5 shrink-0 rounded-full border border-border"
+              className="h-3.5 w-3.5 shrink-0 rounded-full"
               style={{ backgroundColor: client.color }}
+              aria-hidden
             />
             <div className="min-w-0">
               <p className="truncate text-sm font-medium text-text-primary">{client.name}</p>
-              <p className="truncate text-xs text-text-muted">
+              <p className="truncate font-mono text-xs text-text-muted">
                 {client.hourly_rate ? `${formatMoney(client.hourly_rate)}/h` : "Sin tarifa"}
               </p>
             </div>

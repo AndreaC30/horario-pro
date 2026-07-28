@@ -50,7 +50,7 @@ export function ShiftListItem({ shift, showDelete, onDelete, embedded = false }:
       {showDelete && onDelete ? (
         <button
           type="button"
-          className="min-h-touch min-w-[2.75rem] rounded-xl border border-border bg-white/[0.02] px-2 text-sm text-danger hover:bg-danger/10 transition-colors"
+          className="min-h-touch min-w-[2.75rem] rounded-lg px-2 text-sm text-danger transition-colors hover:bg-danger/10"
           aria-label={`Eliminar jornada de ${shift.client.name}`}
           onClick={() => onDelete(shift)}
         >
