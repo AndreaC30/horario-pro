@@ -7,7 +7,7 @@ import { Button } from "../components/ui/Button";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { useShifts } from "../hooks/useShifts";
-import { TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
+import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import type { Shift } from "../types/api";
 
 function monthLabel(year: number, month: number): string {
@@ -32,11 +32,27 @@ function dayKey(year: number, month: number, day: number): string {
   return `${year}-${pad(month)}-${pad(day)}`;
 }
 
+function isCurrentOrFutureMonth(year: number, month: number): boolean {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth() + 1;
+  return year > currentYear || (year === currentYear && month >= currentMonth);
+}
+
+function isFutureDay(year: number, month: number, day: number): boolean {
+  const now = new Date();
+  const cell = new Date(year, month - 1, day);
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return cell.getTime() > today.getTime();
+}
+
 export function CalendarPage() {
   const now = new Date();
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+
+  const isCurrentMonth = isCurrentOrFutureMonth(year, month);
 
   const bounds = useMemo(() => {
     const start = new Date(year, month - 1, 1);
@@ -69,6 +85,7 @@ export function CalendarPage() {
   };
 
   const goNext = () => {
+    if (isCurrentMonth) return;
     if (month === 12) {
       setYear(year + 1);
       setMonth(1);
@@ -92,8 +109,8 @@ export function CalendarPage() {
   const weekdays = ["L", "M", "X", "J", "V", "S", "D"];
 
   return (
-    <div className="space-y-6 pb-8">
-      <section className="space-y-3">
+    <div className="space-y-8 pb-8">
+      <section className="space-y-4">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
             <p className={TYPE_EYEBROW}>Vista</p>
@@ -103,7 +120,7 @@ export function CalendarPage() {
             <button
               type="button"
               onClick={goPrev}
-              className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)]"
+              className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)] hover:text-text-primary"
               aria-label="Mes anterior"
             >
               <PiCaretLeft className="h-5 w-5" />
@@ -111,7 +128,12 @@ export function CalendarPage() {
             <button
               type="button"
               onClick={goNext}
-              className="min-h-touch min-w-touch rounded-lg p-2 text-text-secondary transition hover:bg-[var(--bg-soft)]"
+              disabled={isCurrentMonth}
+              className={`min-h-touch min-w-touch rounded-lg p-2 transition ${
+                isCurrentMonth
+                  ? "cursor-default text-text-muted"
+                  : "text-text-secondary hover:bg-[var(--bg-soft)] hover:text-text-primary"
+              }`}
               aria-label="Mes siguiente"
             >
               <PiCaretRight className="h-5 w-5" />
@@ -123,33 +145,21 @@ export function CalendarPage() {
         {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
 
         {!loading && !error ? (
-          <div className="overflow-hidden rounded-xl border border-border bg-surface">
-            <div className="grid grid-cols-7 border-b border-border bg-[var(--bg-soft)] text-center font-mono text-[0.65rem] text-text-muted">
-              {weekdays.map((d, i) => (
-                <div
-                  key={d}
-                  className={`py-2 ${i < 6 ? "border-r border-border" : ""}`}
-                >
+          <div className="space-y-3">
+            <div className="grid grid-cols-7 gap-1.5 px-0.5 text-center font-mono text-[0.65rem] tracking-wide text-text-muted">
+              {weekdays.map((d) => (
+                <div key={d} className="py-1">
                   {d}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7">
-              {cells.map((day, idx) => {
-                const col = idx % 7;
-                const isLastCol = col === 6;
-                const isLastRow = idx >= cells.length - 7;
-                const cellBorder = `${isLastCol ? "" : "border-r "}border-border ${isLastRow ? "" : "border-b "}`;
 
+            <div className="grid grid-cols-7 gap-1.5">
+              {cells.map((day, idx) => {
                 if (day === null) {
-                  return (
-                    <div
-                      key={`e-${idx}`}
-                      className={`aspect-square bg-[var(--bg-soft)]/40 ${cellBorder}`}
-                      aria-hidden
-                    />
-                  );
+                  return <div key={`e-${idx}`} className="aspect-square" aria-hidden />;
                 }
+
                 const key = dayKey(year, month, day);
                 const dayShifts = byDay.get(key) ?? [];
                 const colors = [...new Set(dayShifts.map((s) => s.client.color))].slice(0, 3);
@@ -158,29 +168,47 @@ export function CalendarPage() {
                   year === now.getFullYear() &&
                   month === now.getMonth() + 1 &&
                   day === now.getDate();
+                const future = isFutureDay(year, month, day);
+                const hasWork = dayShifts.length > 0;
+                const accent = colors[0];
+
                 return (
                   <button
                     key={key}
                     type="button"
+                    disabled={future}
                     onClick={() => setSelectedDay(day)}
-                    className={`flex aspect-square flex-col items-center justify-start p-1.5 text-sm transition ${cellBorder} ${
-                      selected
-                        ? "bg-primary/15 ring-2 ring-inset ring-primary"
-                        : "hover:bg-[var(--bg-soft)]"
-                    } ${isToday ? "font-semibold text-primary" : "text-text-primary"}`}
-                    aria-label={`Día ${day}${dayShifts.length ? `, ${dayShifts.length} jornadas` : ""}`}
+                    className={`relative flex aspect-square flex-col items-center justify-between rounded-xl px-1 py-1.5 text-sm transition ${
+                      future
+                        ? "cursor-default text-text-muted/45"
+                        : selected
+                          ? "bg-primary/20 text-text-primary shadow-card ring-1 ring-primary/50"
+                          : hasWork
+                            ? "bg-[var(--bg-soft)] text-text-primary hover:bg-[var(--bg-surface-elevated)]"
+                            : "text-text-secondary hover:bg-[var(--bg-soft)]"
+                    }`}
+                    style={
+                      hasWork && !selected && !future && accent
+                        ? { boxShadow: `inset 0 -2px 0 0 ${accent}` }
+                        : undefined
+                    }
+                    aria-label={`Día ${day}${dayShifts.length ? `, ${dayShifts.length} jornadas` : ""}${future ? ", futuro" : ""}`}
                     aria-pressed={selected}
                   >
                     <span
-                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
-                        isToday && !selected ? "bg-primary/15" : ""
+                      className={`flex h-7 w-7 items-center justify-center rounded-full text-sm tabular-nums ${
+                        isToday
+                          ? "bg-primary font-semibold text-white"
+                          : selected
+                            ? "font-semibold"
+                            : "font-medium"
                       }`}
                     >
                       {day}
                     </span>
-                    {colors.length > 0 ? (
-                      <span className="mt-auto flex gap-0.5 pb-0.5">
-                        {colors.map((c) => (
+                    <span className="flex min-h-[0.4rem] items-center justify-center gap-0.5">
+                      {!future &&
+                        colors.map((c) => (
                           <span
                             key={c}
                             className="h-1.5 w-1.5 rounded-full"
@@ -188,8 +216,7 @@ export function CalendarPage() {
                             aria-hidden
                           />
                         ))}
-                      </span>
-                    ) : null}
+                    </span>
                   </button>
                 );
               })}
@@ -199,7 +226,7 @@ export function CalendarPage() {
       </section>
 
       {selectedDay ? (
-        <section className="space-y-3">
+        <section className="space-y-3 border-t border-border/70 pt-5">
           <div>
             <p className={TYPE_EYEBROW}>Detalle</p>
             <h3 className={`${TYPE_DISPLAY} mt-0.5`}>
@@ -219,7 +246,7 @@ export function CalendarPage() {
           />
         </section>
       ) : (
-        <p className="text-sm text-text-secondary">Toca un día para ver sus jornadas.</p>
+        <p className={TYPE_BODY}>Toca un día para ver sus jornadas.</p>
       )}
     </div>
   );
