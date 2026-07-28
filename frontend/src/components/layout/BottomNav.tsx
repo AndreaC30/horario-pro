@@ -2,11 +2,11 @@ import { NavLink, useLocation } from "react-router-dom";
 import { IoCalendarOutline, IoHomeOutline, IoPeopleOutline, IoTimeOutline } from "react-icons/io5";
 import type { IconType } from "react-icons";
 
-const tabs: { to: string; label: string; Icon: IconType }[] = [
-  { to: "/dashboard", label: "Inicio", Icon: IoHomeOutline },
-  { to: "/jornada/nueva", label: "Jornada", Icon: IoTimeOutline },
-  { to: "/historial", label: "Historial", Icon: IoCalendarOutline },
-  { to: "/clientes", label: "Clientes", Icon: IoPeopleOutline },
+const tabs: { to: string; label: string; Icon: IconType; tour?: string }[] = [
+  { to: "/dashboard", label: "Inicio", Icon: IoHomeOutline, tour: "nav-inicio" },
+  { to: "/jornada/nueva", label: "Jornada", Icon: IoTimeOutline, tour: "nav-jornada" },
+  { to: "/historial", label: "Historial", Icon: IoCalendarOutline, tour: "nav-historial" },
+  { to: "/clientes", label: "Clientes", Icon: IoPeopleOutline, tour: "nav-clientes" },
 ];
 
 export function BottomNav() {
@@ -18,11 +18,12 @@ export function BottomNav() {
       aria-label="Navegación principal"
     >
       <div className="mx-auto flex h-[60px] max-w-app md:max-w-3xl">
-        {tabs.map(({ to, label, Icon }) => (
+        {tabs.map(({ to, label, Icon, tour }) => (
           <NavLink
             key={to}
             to={to}
             state={{ from: location.pathname }}
+            data-tour={tour}
             className={({ isActive }) =>
               `nav-link h-full ${isActive ? "nav-link-active" : "nav-link-inactive"}`
             }

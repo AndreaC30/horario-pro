@@ -3,6 +3,7 @@ import { apiRequest } from "./apiClient";
 export type UserProfile = {
   id: number;
   email: string;
+  tour_completed: boolean;
   created_at: string;
 };
 
@@ -30,4 +31,11 @@ export function register(email: string, password: string) {
 
 export function getMe() {
   return apiRequest<UserProfile>("/api/v1/auth/me");
+}
+
+export function completeTour() {
+  return apiRequest<UserProfile>("/api/v1/auth/me/tour", {
+    method: "PATCH",
+    body: JSON.stringify({ tour_completed: true }),
+  });
 }

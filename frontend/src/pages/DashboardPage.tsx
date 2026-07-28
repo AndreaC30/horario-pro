@@ -85,7 +85,7 @@ export function DashboardPage() {
     <>
       <div className="space-y-10 pb-20">
         {/* ——— 1. HOY ——— */}
-        <section aria-labelledby="section-hoy" className="space-y-3">
+        <section aria-labelledby="section-hoy" className="space-y-3" data-tour="hoy">
           <div>
             <p className={TYPE_EYEBROW}>Hoy</p>
             <h2 id="section-hoy" className={`${TYPE_DISPLAY} mt-0.5 capitalize`}>
@@ -123,7 +123,7 @@ export function DashboardPage() {
         </section>
 
         {/* ——— 2. ESTE MES ——— */}
-        <section aria-labelledby="section-mes" className="space-y-3">
+        <section aria-labelledby="section-mes" className="space-y-3" data-tour="mes">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <p className={TYPE_EYEBROW}>Este mes</p>

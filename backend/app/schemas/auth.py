@@ -18,7 +18,12 @@ class UserRead(BaseModel):
 
     id: int
     email: EmailStr
+    tour_completed: bool = False
     created_at: datetime
+
+
+class TourCompleteRequest(BaseModel):
+    tour_completed: bool = True
 
 
 class TokenResponse(BaseModel):
