@@ -107,7 +107,7 @@ export function LandingPage() {
           </Link>
           <div className="flex items-center gap-2">
             <Link to="/login">
-              <Button type="button" variant="ghost" className="min-h-10 px-3 text-sm">
+              <Button type="button" variant="secondary" className="min-h-10 px-3 text-sm">
                 Entrar
               </Button>
             </Link>
@@ -204,7 +204,7 @@ export function LandingPage() {
                   </Button>
                 </Link>
                 <Link to="/login">
-                  <Button type="button" variant="ghost" className="w-full sm:min-w-[12rem]">
+                  <Button type="button" variant="secondary" className="w-full sm:min-w-[12rem]">
                     Entrar
                   </Button>
                 </Link>
