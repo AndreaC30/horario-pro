@@ -1,8 +1,10 @@
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
+import { useCallback } from "react";
 
 import { IoClose } from "react-icons/io5";
 
+import { useEscapeToClose, useHistoryBackClose } from "../../hooks/useOverlayClose";
 import { Button } from "./Button";
 
 type ModalProps = {
@@ -13,6 +15,10 @@ type ModalProps = {
 };
 
 export function Modal({ open, title, children, onClose }: ModalProps) {
+  const handleClose = useCallback(() => onClose(), [onClose]);
+  useEscapeToClose(open, handleClose);
+  useHistoryBackClose(open, handleClose);
+
   return (
     <AnimatePresence>
       {open && (
@@ -22,7 +28,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
           className="fixed inset-0 z-50 flex items-end justify-center bg-[var(--bg)]/70 p-4 backdrop-blur-sm sm:items-center"
-          onClick={onClose}
+          onClick={handleClose}
         >
           <motion.div
             initial={{ opacity: 0, y: 24, scale: 0.96 }}
@@ -39,7 +45,7 @@ export function Modal({ open, title, children, onClose }: ModalProps) {
               <h2 id="modal-title" className="font-display text-lg font-semibold tracking-tight text-text-primary">
                 {title}
               </h2>
-              <Button variant="ghost" onClick={onClose} aria-label="Cerrar">
+              <Button type="button" variant="ghost" onClick={handleClose} aria-label="Cerrar">
                 <IoClose className="h-5 w-5" aria-hidden />
               </Button>
             </div>

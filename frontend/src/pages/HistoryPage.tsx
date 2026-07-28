@@ -164,7 +164,7 @@ export function HistoryPage() {
                 setToDelete(shift);
               }}
               emptyAction={
-                <Link to="/jornada/nueva">
+                <Link to="/jornada/nueva" state={{ from: "/historial" }}>
                   <Button className="w-full">+ Nueva jornada</Button>
                 </Link>
               }

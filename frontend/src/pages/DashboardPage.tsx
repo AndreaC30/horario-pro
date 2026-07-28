@@ -102,7 +102,7 @@ export function DashboardPage() {
                 <p className={TYPE_BODY}>
                   Cuando registres una jornada, aquí verás las horas y el estimado del día.
                 </p>
-                <Link to="/jornada/nueva" className="mt-2 inline-block sm:hidden">
+                <Link to="/jornada/nueva" state={{ from: "/dashboard" }} className="mt-2 inline-block sm:hidden">
                   <Button type="button" className="w-full">
                     + Nueva jornada
                   </Button>
@@ -168,7 +168,7 @@ export function DashboardPage() {
               suffix="€"
             />
             <div className="col-span-2 hidden sm:col-span-2 sm:block lg:col-span-1 lg:flex lg:items-stretch">
-              <Link to="/jornada/nueva" className="block w-full lg:flex lg:flex-1">
+              <Link to="/jornada/nueva" state={{ from: "/dashboard" }} className="block w-full lg:flex lg:flex-1">
                 <Button className="h-full min-h-touch w-full">+ Nueva jornada</Button>
               </Link>
             </div>
@@ -222,7 +222,7 @@ export function DashboardPage() {
                 title="Aún no hay jornadas"
                 description="Crea un cliente y registra tu primera jornada."
                 action={
-                  <Link to="/jornada/nueva">
+                  <Link to="/jornada/nueva" state={{ from: "/dashboard" }}>
                     <Button className="w-full">+ Nueva jornada</Button>
                   </Link>
                 }

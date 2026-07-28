@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import type { Shift } from "../../types/api";
 import { formatEstimatedPay, formatMoney } from "../../utils/money";
@@ -13,6 +13,7 @@ type ShiftListItemProps = {
 };
 
 export function ShiftListItem({ shift, showDelete, onDelete, embedded = false }: ShiftListItemProps) {
+  const location = useLocation();
   const date = new Date(shift.start_time).toLocaleDateString("es-ES", {
     weekday: "short",
     day: "numeric",
@@ -25,6 +26,7 @@ export function ShiftListItem({ shift, showDelete, onDelete, embedded = false }:
     <div className="flex items-stretch gap-1">
       <Link
         to={`/jornada/${shift.id}`}
+        state={{ from: location.pathname }}
         className={`flex min-h-[2.75rem] flex-1 items-center gap-3 rounded-xl px-2 py-2 transition-colors ${
           embedded
             ? "hover:bg-accent-muted/50"

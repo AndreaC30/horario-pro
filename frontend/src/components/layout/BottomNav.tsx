@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { IoCalendarOutline, IoHomeOutline, IoPeopleOutline, IoTimeOutline } from "react-icons/io5";
 import type { IconType } from "react-icons";
 
@@ -10,6 +10,8 @@ const tabs: { to: string; label: string; Icon: IconType }[] = [
 ];
 
 export function BottomNav() {
+  const location = useLocation();
+
   return (
     <nav
       className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-[var(--bg-surface)]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md"
@@ -20,6 +22,7 @@ export function BottomNav() {
           <NavLink
             key={to}
             to={to}
+            state={{ from: location.pathname }}
             className={({ isActive }) =>
               `nav-link h-full ${isActive ? "nav-link-active" : "nav-link-inactive"}`
             }

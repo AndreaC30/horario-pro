@@ -74,7 +74,7 @@ export function ShiftFormPage() {
 
   return (
     <>
-      <div className="space-y-6 pb-8">
+          <div className="space-y-6 pb-8">
         <div>
           <p className={TYPE_EYEBROW}>Registro</p>
           <h2 className={`${TYPE_DISPLAY} mt-0.5`}>
