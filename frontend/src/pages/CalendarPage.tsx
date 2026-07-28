@@ -123,18 +123,32 @@ export function CalendarPage() {
         {error ? <ErrorBanner message={error} onRetry={() => void refresh()} /> : null}
 
         {!loading && !error ? (
-          <div className="space-y-2">
-            <div className="grid grid-cols-7 gap-1 text-center font-mono text-[0.65rem] text-text-muted">
-              {weekdays.map((d) => (
-                <div key={d} className="py-1">
+          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+            <div className="grid grid-cols-7 border-b border-border bg-[var(--bg-soft)] text-center font-mono text-[0.65rem] text-text-muted">
+              {weekdays.map((d, i) => (
+                <div
+                  key={d}
+                  className={`py-2 ${i < 6 ? "border-r border-border" : ""}`}
+                >
                   {d}
                 </div>
               ))}
             </div>
-            <div className="grid grid-cols-7 gap-1">
+            <div className="grid grid-cols-7">
               {cells.map((day, idx) => {
+                const col = idx % 7;
+                const isLastCol = col === 6;
+                const isLastRow = idx >= cells.length - 7;
+                const cellBorder = `${isLastCol ? "" : "border-r "}border-border ${isLastRow ? "" : "border-b "}`;
+
                 if (day === null) {
-                  return <div key={`e-${idx}`} className="aspect-square" />;
+                  return (
+                    <div
+                      key={`e-${idx}`}
+                      className={`aspect-square bg-[var(--bg-soft)]/40 ${cellBorder}`}
+                      aria-hidden
+                    />
+                  );
                 }
                 const key = dayKey(year, month, day);
                 const dayShifts = byDay.get(key) ?? [];
@@ -149,15 +163,21 @@ export function CalendarPage() {
                     key={key}
                     type="button"
                     onClick={() => setSelectedDay(day)}
-                    className={`flex aspect-square flex-col items-center justify-start rounded-lg p-1 text-sm transition ${
+                    className={`flex aspect-square flex-col items-center justify-start p-1.5 text-sm transition ${cellBorder} ${
                       selected
-                        ? "bg-primary/15 ring-1 ring-primary"
+                        ? "bg-primary/15 ring-2 ring-inset ring-primary"
                         : "hover:bg-[var(--bg-soft)]"
                     } ${isToday ? "font-semibold text-primary" : "text-text-primary"}`}
                     aria-label={`Día ${day}${dayShifts.length ? `, ${dayShifts.length} jornadas` : ""}`}
                     aria-pressed={selected}
                   >
-                    <span>{day}</span>
+                    <span
+                      className={`flex h-6 w-6 items-center justify-center rounded-full text-xs ${
+                        isToday && !selected ? "bg-primary/15" : ""
+                      }`}
+                    >
+                      {day}
+                    </span>
                     {colors.length > 0 ? (
                       <span className="mt-auto flex gap-0.5 pb-0.5">
                         {colors.map((c) => (

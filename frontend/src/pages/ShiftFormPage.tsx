@@ -17,7 +17,7 @@ import { replayLastShiftOntoToday } from "../utils/time";
 type LocationState = {
   preferredClientId?: number;
   duplicateFrom?: Partial<ShiftInput>;
-  /** Keep exact start/end (cronómetro). Otherwise duplicate → hoy. */
+  /** Keep exact start/end times. Otherwise duplicate → hoy. */
   keepShiftTimes?: boolean;
 };
 

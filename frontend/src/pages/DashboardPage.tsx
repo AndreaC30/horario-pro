@@ -4,7 +4,6 @@ import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBreakdown";
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
-import { ActiveTimerBanner } from "../components/domain/ActiveTimerBanner";
 import { TodayReminderBanner } from "../components/domain/TodayReminderBanner";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
@@ -87,7 +86,6 @@ export function DashboardPage() {
     <>
       <div className="space-y-10 pb-20">
         <TodayReminderBanner />
-        <ActiveTimerBanner />
 
         {/* ——— 1. HOY ——— */}
         <section aria-labelledby="section-hoy" className="space-y-3" data-tour="hoy">
