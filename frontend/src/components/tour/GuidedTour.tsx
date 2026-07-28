@@ -1,5 +1,6 @@
 /**
  * Guided tour overlay: dims the page except the target, with next/back/skip.
+ * While open, the page cannot scroll or receive clicks — only the control panel.
  */
 import { useCallback, useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
@@ -29,17 +30,12 @@ type SpotlightRect = {
   height: number;
 };
 
-function TourSpotlightOverlay({
-  rect,
-  onDismiss,
-}: {
-  rect: SpotlightRect | null;
-  onDismiss: () => void;
-}) {
-  const dim = "absolute bg-background/55 backdrop-blur-[1px]";
+/** Visual dim only — does not receive pointer events. */
+function TourSpotlightOverlay({ rect }: { rect: SpotlightRect | null }) {
+  const dim = "pointer-events-none absolute bg-background/60 backdrop-blur-[1px]";
 
   if (!rect) {
-    return <div className={`inset-0 ${dim}`} aria-hidden onClick={onDismiss} />;
+    return <div className={`inset-0 ${dim}`} aria-hidden />;
   }
 
   const { top, left, width, height } = rect;
@@ -48,10 +44,10 @@ function TourSpotlightOverlay({
 
   return (
     <>
-      <div className={dim} style={{ top: 0, left: 0, right: 0, height: top }} onClick={onDismiss} />
-      <div className={dim} style={{ top, left: 0, width: left, height }} onClick={onDismiss} />
-      <div className={dim} style={{ top, left: right, right: 0, height }} onClick={onDismiss} />
-      <div className={dim} style={{ top: bottom, left: 0, right: 0, bottom: 0 }} onClick={onDismiss} />
+      <div className={dim} style={{ top: 0, left: 0, right: 0, height: top }} />
+      <div className={dim} style={{ top, left: 0, width: left, height }} />
+      <div className={dim} style={{ top, left: right, right: 0, height }} />
+      <div className={dim} style={{ top: bottom, left: 0, right: 0, bottom: 0 }} />
     </>
   );
 }
@@ -148,20 +144,8 @@ export function GuidedTour({ steps, onComplete, onSkip, onEnsurePath }: Props) {
       aria-labelledby="guided-tour-title"
       aria-describedby="guided-tour-body"
     >
-      <TourSpotlightOverlay rect={scrolling ? null : rect} onDismiss={finishSkip} />
-
-      {rect && !scrolling ? (
-        <div
-          className="pointer-events-auto absolute z-[1]"
-          style={{
-            top: rect.top,
-            left: rect.left,
-            width: rect.width,
-            height: rect.height,
-          }}
-          aria-hidden
-        />
-      ) : null}
+      {/* Visual spotlight (no interaction) */}
+      <TourSpotlightOverlay rect={scrolling ? null : rect} />
 
       {rect && !scrolling ? (
         <div
@@ -176,9 +160,18 @@ export function GuidedTour({ steps, onComplete, onSkip, onEnsurePath }: Props) {
         />
       ) : null}
 
+      {/* Full-screen interaction shield: blocks scroll/clicks on the page */}
+      <div
+        className="absolute inset-0 z-[3] touch-none"
+        aria-hidden
+        onClick={(e) => e.preventDefault()}
+        onWheel={(e) => e.preventDefault()}
+        onTouchMove={(e) => e.preventDefault()}
+      />
+
       <div
         data-guided-tour-controls
-        className="absolute inset-x-3 bottom-[max(4.75rem,calc(3.75rem+env(safe-area-inset-bottom)))] z-[3] mx-auto max-h-[42vh] max-w-md overflow-y-auto rounded-2xl border border-border bg-surface p-4 shadow-2xl sm:inset-x-4 sm:p-5"
+        className="absolute inset-x-3 bottom-[max(4.75rem,calc(3.75rem+env(safe-area-inset-bottom)))] z-[4] mx-auto max-h-[42vh] max-w-md overflow-y-auto overscroll-contain rounded-2xl border border-border bg-surface p-4 shadow-2xl sm:inset-x-4 sm:p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-2">

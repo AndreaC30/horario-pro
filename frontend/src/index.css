@@ -152,6 +152,16 @@ html.dark {
     @apply min-h-dvh;
   }
 
+  /* Guided tour: freeze page interaction (scroll/clicks go only to tour controls) */
+  html[data-tour-active="1"] {
+    overscroll-behavior: none;
+  }
+
+  html[data-tour-active="1"] body {
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
   body,
   body :not([class*="theme-flash"]) {
     transition:
