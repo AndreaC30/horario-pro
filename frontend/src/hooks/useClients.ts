@@ -1,9 +1,16 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { createClient, deleteClient, listClients, updateClient } from "../services/clientService";
+import {
+  archiveClient,
+  createClient,
+  deleteClient,
+  listClients,
+  unarchiveClient,
+  updateClient,
+} from "../services/clientService";
 import type { Client, ClientInput } from "../types/api";
 
-export function useClients() {
+export function useClients(includeArchived = false) {
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,13 +19,13 @@ export function useClients() {
     setLoading(true);
     setError(null);
     try {
-      setClients(await listClients());
+      setClients(await listClients(includeArchived));
     } catch (err) {
       setError(err instanceof Error ? err.message : "No se pudieron cargar los clientes");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [includeArchived]);
 
   useEffect(() => {
     void refresh();
@@ -50,5 +57,21 @@ export function useClients() {
     [refresh],
   );
 
-  return { clients, loading, error, refresh, add, update, remove };
+  const archive = useCallback(
+    async (id: number) => {
+      await archiveClient(id);
+      await refresh();
+    },
+    [refresh],
+  );
+
+  const unarchive = useCallback(
+    async (id: number) => {
+      await unarchiveClient(id);
+      await refresh();
+    },
+    [refresh],
+  );
+
+  return { clients, loading, error, refresh, add, update, remove, archive, unarchive };
 }

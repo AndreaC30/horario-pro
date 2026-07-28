@@ -9,12 +9,15 @@ import { useAuth } from "../hooks/useAuth";
 import { useOnlineStatus } from "../hooks/useOnlineStatus";
 import { TYPE_BODY, TYPE_DISPLAY } from "../lib/typography";
 import { ApiError } from "../services/apiClient";
+import { forgotPassword } from "../services/authService";
 import { OFFLINE_MESSAGE } from "../utils/network";
 
-type Mode = "login" | "register";
+type Mode = "login" | "register" | "forgot";
 
 function modeFromSearch(raw: string | null): Mode {
-  return raw === "register" ? "register" : "login";
+  if (raw === "register") return "register";
+  if (raw === "forgot") return "forgot";
+  return "login";
 }
 
 export function LoginPage() {
@@ -26,6 +29,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const online = useOnlineStatus();
 
@@ -40,14 +44,34 @@ export function LoginPage() {
   const switchMode = (next: Mode) => {
     setMode(next);
     setError(null);
+    setInfo(null);
     setPassword("");
     setPassword2("");
-    setSearchParams(next === "register" ? { mode: "register" } : {}, { replace: true });
-  };
+    if (next === "register") {
+      setSearchParams({ mode: "register" }, { replace: true });
+    } else if (next === "forgot") {
+      setSearchParams({ mode: "forgot" }, { replace: true });
+    } else {
+      setSearchParams({}, { replace: true });
+    }  };
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
     setError(null);
+    setInfo(null);
+
+    if (mode === "forgot") {
+      setSubmitting(true);
+      try {
+        const res = await forgotPassword(email);
+        setInfo(res.detail);
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "No se pudo enviar el correo");
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
 
     if (mode === "register") {
       if (password.length < 8) {
@@ -104,44 +128,50 @@ export function LoginPage() {
       </div>
 
       <div className="card">
-        <div
-          className="mb-5 grid grid-cols-2 gap-1 rounded-xl border border-border bg-[var(--bg-soft)] p-1"
-          role="tablist"
-          aria-label="Acceso"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === "login"}
-            className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
-              mode === "login"
-                ? "bg-surface text-text-primary shadow-card"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-            onClick={() => switchMode("login")}
+        {mode !== "forgot" ? (
+          <div
+            className="mb-5 grid grid-cols-2 gap-1 rounded-xl border border-border bg-[var(--bg-soft)] p-1"
+            role="tablist"
+            aria-label="Acceso"
           >
-            Entrar
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={mode === "register"}
-            className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
-              mode === "register"
-                ? "bg-surface text-text-primary shadow-card"
-                : "text-text-muted hover:text-text-primary"
-            }`}
-            onClick={() => switchMode("register")}
-          >
-            Crear cuenta
-          </button>
-        </div>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === "login"}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
+                mode === "login"
+                  ? "bg-surface text-text-primary shadow-card"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+              onClick={() => switchMode("login")}
+            >
+              Entrar
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === "register"}
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
+                mode === "register"
+                  ? "bg-surface text-text-primary shadow-card"
+                  : "text-text-muted hover:text-text-primary"
+              }`}
+              onClick={() => switchMode("register")}
+            >
+              Crear cuenta
+            </button>
+          </div>
+        ) : null}
 
         <p className={`mb-4 ${TYPE_BODY}`}>
-          {mode === "login" ? "Accede a tu cuenta" : "Crea una cuenta nueva"}
+          {mode === "login"
+            ? "Accede a tu cuenta"
+            : mode === "register"
+              ? "Crea una cuenta nueva"
+              : "Recuperar contraseña"}
         </p>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={(e) => void handleSubmit(e)}>
           <div>
             <Label htmlFor="email">Email</Label>
             <Input
@@ -154,21 +184,23 @@ export function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div>
-            <Label htmlFor="password">
-              {mode === "register" ? "Contraseña (mín. 8)" : "Contraseña"}
-            </Label>
-            <Input
-              id="password"
-              type="password"
-              autoComplete={mode === "register" ? "new-password" : "current-password"}
-              required
-              minLength={mode === "register" ? 8 : undefined}
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+          {mode !== "forgot" ? (
+            <div>
+              <Label htmlFor="password">
+                {mode === "register" ? "Contraseña (mín. 8)" : "Contraseña"}
+              </Label>
+              <Input
+                id="password"
+                type="password"
+                autoComplete={mode === "register" ? "new-password" : "current-password"}
+                required
+                minLength={mode === "register" ? 8 : undefined}
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          ) : null}
           {mode === "register" ? (
             <div>
               <Label htmlFor="password2">Repetir contraseña</Label>
@@ -185,15 +217,44 @@ export function LoginPage() {
             </div>
           ) : null}
 
+          {mode === "login" ? (
+            <button
+              type="button"
+              className="text-sm font-medium text-primary hover:text-primary-hover"
+              onClick={() => switchMode("forgot")}
+            >
+              ¿Olvidaste tu contraseña?
+            </button>
+          ) : null}
+
+          {mode === "forgot" ? (
+            <button
+              type="button"
+              className="text-sm font-medium text-primary hover:text-primary-hover"
+              onClick={() => switchMode("login")}
+            >
+              Volver a entrar
+            </button>
+          ) : null}
+
           {!online ? <p className="text-sm text-warning">{OFFLINE_MESSAGE}</p> : null}
           {error ? (
             <div className="rounded-lg border border-danger/20 bg-danger/5 px-3 py-2 text-sm text-danger">
               {error}
             </div>
           ) : null}
+          {info ? (
+            <div className="rounded-lg border border-border bg-[var(--bg-soft)] px-3 py-2 text-sm text-text-secondary">
+              {info}
+            </div>
+          ) : null}
 
           <Button type="submit" className="w-full" loading={submitting} disabled={!online}>
-            {mode === "register" ? "Crear cuenta" : "Entrar"}
+            {mode === "register"
+              ? "Crear cuenta"
+              : mode === "forgot"
+                ? "Enviar contraseña temporal"
+                : "Entrar"}
           </Button>
         </form>
       </div>

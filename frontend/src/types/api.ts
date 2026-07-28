@@ -3,6 +3,7 @@ export type Client = {
   name: string;
   color: string;
   hourly_rate: string | null;
+  archived_at?: string | null;
   created_at: string;
 };
 
@@ -59,4 +60,24 @@ export type ShiftInput = {
   break_minutes?: number;
   driving_extra?: number;
   notes?: string | null;
+};
+
+export type ActiveTimer = {
+  id: number;
+  client_id: number;
+  started_at: string;
+  notes: string | null;
+  created_at: string;
+  client: Client;
+  elapsed_seconds: number;
+};
+
+export type TimerStopDraft = {
+  client_id: number;
+  start_time: string;
+  end_time: string;
+  break_minutes: number;
+  driving_extra: number;
+  notes: string | null;
+  client: Client;
 };

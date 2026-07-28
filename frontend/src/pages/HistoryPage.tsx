@@ -7,11 +7,12 @@ import { Button } from "../components/ui/Button";
 import { ErrorBanner } from "../components/ui/ErrorBanner";
 import { LoadingSpinner } from "../components/ui/LoadingSpinner";
 import { ConfirmModal } from "../components/ui/ConfirmModal";
+import { useClients } from "../hooks/useClients";
 import { useShifts } from "../hooks/useShifts";
-import { deleteShift } from "../services/shiftService";
 import { TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
+import { deleteShift, exportShiftsCsv } from "../services/shiftService";
 import type { Shift } from "../types/api";
-import { HISTORY_PRESETS } from "../utils/dateRanges";
+import { HISTORY_PRESETS, lastMonthBounds, monthBounds } from "../utils/dateRanges";
 
 function monthLabel(year: number, month: number): string {
   const date = new Date(year, month - 1, 1);
@@ -30,10 +31,14 @@ export function HistoryPage() {
   const [presetId, setPresetId] = useState("month");
   const [year, setYear] = useState(now.getFullYear());
   const [month, setMonth] = useState(now.getMonth() + 1);
+  const [clientFilterId, setClientFilterId] = useState<number | "">("");
   const [toDelete, setToDelete] = useState<Shift | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
+  const { clients } = useClients();
   const isCurrentMonth = isCurrentOrFuture(year, month);
 
   const goPrevMonth = () => {
@@ -43,6 +48,7 @@ export function HistoryPage() {
     } else {
       setMonth(month - 1);
     }
+    setPresetId("month");
   };
 
   const goNextMonth = () => {
@@ -53,6 +59,7 @@ export function HistoryPage() {
     } else {
       setMonth(month + 1);
     }
+    setPresetId("month");
   };
 
   const bounds = useMemo(() => {
@@ -61,11 +68,23 @@ export function HistoryPage() {
       const end = new Date(year, month, 1);
       return { from: start.toISOString(), to: end.toISOString() };
     }
+    if (presetId === "last_month") {
+      return lastMonthBounds();
+    }
     const preset = HISTORY_PRESETS.find((item) => item.id === presetId);
-    return preset?.getRange() ?? {};
+    return preset?.getRange() ?? monthBounds();
   }, [presetId, year, month]);
 
-  const { shifts, loading, error, refresh } = useShifts({ ...bounds, limit: 100 });
+  const query = useMemo(
+    () => ({
+      ...bounds,
+      limit: 100,
+      clientId: clientFilterId === "" ? undefined : clientFilterId,
+    }),
+    [bounds, clientFilterId],
+  );
+
+  const { shifts, loading, error, refresh } = useShifts(query);
 
   const handleConfirmDelete = async () => {
     if (!toDelete) return;
@@ -82,9 +101,38 @@ export function HistoryPage() {
     }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    setExportError(null);
+    try {
+      const csv = await exportShiftsCsv({
+        from: bounds.from,
+        to: bounds.to,
+        client_id: clientFilterId === "" ? undefined : clientFilterId,
+      });
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "workshift-jornadas.csv";
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setExportError(err instanceof Error ? err.message : "No se pudo exportar");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const deleteSummary = toDelete
     ? `${new Date(toDelete.start_time).toLocaleDateString("es-ES")} · ${toDelete.client.name}`
     : "";
+
+  const quickFilters = [
+    { id: "month", label: "Este mes" },
+    { id: "last_month", label: "Mes pasado" },
+    { id: "week", label: "Esta semana" },
+  ];
 
   return (
     <div className="space-y-8 pb-8">
@@ -119,12 +167,67 @@ export function HistoryPage() {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filtros rápidos">
+          {quickFilters.map((f) => (
+            <button
+              key={f.id}
+              type="button"
+              className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
+                presetId === f.id
+                  ? "bg-primary text-white"
+                  : "bg-[var(--bg-soft)] text-text-primary hover:bg-[var(--bg-surface-elevated)]"
+              }`}
+              onClick={() => {
+                setPresetId(f.id);
+                if (f.id === "month") {
+                  setYear(now.getFullYear());
+                  setMonth(now.getMonth() + 1);
+                }
+              }}
+            >
+              {f.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            className={`min-h-11 rounded-lg px-3 text-sm font-medium transition ${
+              clientFilterId !== ""
+                ? "bg-primary text-white"
+                : "bg-[var(--bg-soft)] text-text-primary hover:bg-[var(--bg-surface-elevated)]"
+            }`}
+            onClick={() => {
+              if (clientFilterId !== "") {
+                setClientFilterId("");
+                return;
+              }
+              if (clients[0]) setClientFilterId(clients[0].id);
+            }}
+          >
+            Este cliente
+          </button>
+        </div>
+
+        {clientFilterId !== "" ? (
+          <select
+            className="min-h-touch w-full rounded-lg border border-border bg-surface px-3 text-sm"
+            value={clientFilterId}
+            onChange={(e) => setClientFilterId(Number(e.target.value))}
+            aria-label="Cliente"
+          >
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        ) : null}
+
         <div
           className="grid grid-cols-3 gap-1 rounded-xl bg-[var(--bg-soft)] p-1"
           role="tablist"
           aria-label="Filtro de fechas"
         >
-          {HISTORY_PRESETS.map((preset) => (
+          {HISTORY_PRESETS.filter((p) => p.id !== "last_month").map((preset) => (
             <button
               key={preset.id}
               type="button"
@@ -141,6 +244,18 @@ export function HistoryPage() {
             </button>
           ))}
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button type="button" variant="secondary" loading={exporting} onClick={() => void handleExport()}>
+            Exportar CSV
+          </Button>
+          <Link to="/calendario" className="contents">
+            <Button type="button" variant="ghost">
+              Ver calendario
+            </Button>
+          </Link>
+        </div>
+        {exportError ? <p className="text-sm text-danger">{exportError}</p> : null}
       </section>
 
       <section className="space-y-3">
@@ -158,6 +273,7 @@ export function HistoryPage() {
               emptyTitle="Aún no hay jornadas"
               emptyDescription="Registra tu primera jornada o cambia el filtro de fechas."
               showDelete
+              showDuplicate
               embedded
               onDelete={(shift) => {
                 setDeleteError(null);

@@ -45,4 +45,5 @@ class ClientRead(BaseModel):
     name: str
     color: str
     hourly_rate: Decimal | None
+    archived_at: datetime | None = None
     created_at: datetime

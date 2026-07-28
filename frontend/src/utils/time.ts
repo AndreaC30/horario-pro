@@ -46,3 +46,38 @@ export function setStartHoursAgo(hours: number): string {
   date.setHours(date.getHours() - hours);
   return toDatetimeLocalValue(date.toISOString());
 }
+
+/** Set a fixed duration ending now (hours). */
+export function setDurationEndingNow(hours: number): { start: string; end: string } {
+  const end = new Date();
+  const start = new Date(end);
+  start.setHours(start.getHours() - hours);
+  return {
+    start: toDatetimeLocalValue(start.toISOString()),
+    end: toDatetimeLocalValue(end.toISOString()),
+  };
+}
+
+/**
+ * Replay last shift onto today: same clock times if possible,
+ * otherwise same duration ending now.
+ */
+export function replayLastShiftOntoToday(
+  lastStartIso: string,
+  lastEndIso: string,
+): { start: string; end: string } {
+  const lastStart = new Date(lastStartIso);
+  const lastEnd = new Date(lastEndIso);
+  const durationMs = lastEnd.getTime() - lastStart.getTime();
+  const today = new Date();
+  const start = new Date(today);
+  start.setHours(lastStart.getHours(), lastStart.getMinutes(), 0, 0);
+  const end = new Date(start.getTime() + durationMs);
+  if (end.getTime() <= start.getTime() || durationMs <= 0) {
+    return setDurationEndingNow(Math.max(1, durationMs / 3_600_000));
+  }
+  return {
+    start: toDatetimeLocalValue(start.toISOString()),
+    end: toDatetimeLocalValue(end.toISOString()),
+  };
+}

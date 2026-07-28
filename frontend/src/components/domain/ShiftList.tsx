@@ -13,6 +13,7 @@ type ShiftListProps = {
   emptyDescription?: string;
   emptyAction?: ReactNode;
   showDelete?: boolean;
+  showDuplicate?: boolean;
   onDelete?: (shift: Shift) => void;
   /** Use separators instead of card-style borders (for use inside Card) */
   embedded?: boolean;
@@ -37,6 +38,7 @@ export function ShiftList({
   emptyDescription = "Registra tu primera jornada.",
   emptyAction,
   showDelete = false,
+  showDuplicate = false,
   onDelete,
   embedded = false,
 }: ShiftListProps) {
@@ -72,6 +74,7 @@ export function ShiftList({
           <ShiftListItem
             shift={shift}
             showDelete={showDelete}
+            showDuplicate={showDuplicate}
             onDelete={onDelete}
             embedded={embedded}
           />

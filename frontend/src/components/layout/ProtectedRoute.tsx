@@ -6,9 +6,11 @@ import { AppShell } from "./AppShell";
 const titles: Record<string, string> = {
   "/dashboard": "Inicio",
   "/historial": "Historial",
+  "/calendario": "Calendario",
   "/clientes": "Clientes",
   "/clientes/nuevo": "Nuevo cliente",
   "/jornada/nueva": "Nueva jornada",
+  "/cuenta": "Cuenta",
 };
 
 function resolveTitle(pathname: string): string {

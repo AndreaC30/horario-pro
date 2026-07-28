@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Response
 from sqlalchemy.orm import Session
 
 from app.core.deps import get_current_user, get_db
@@ -29,6 +29,36 @@ def list_shifts(
         client_id=client_id,
         limit=limit,
         offset=offset,
+    )
+
+
+@router.get("/last", response_model=ShiftRead | None)
+def get_last_shift(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ShiftRead | None:
+    return shift_service.get_last_shift(db, current_user.id)
+
+
+@router.get("/export")
+def export_shifts(
+    date_from: datetime | None = Query(default=None, alias="from"),
+    date_to: datetime | None = Query(default=None, alias="to"),
+    client_id: int | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Response:
+    csv_text = shift_service.export_shifts_csv(
+        db,
+        current_user.id,
+        date_from=date_from,
+        date_to=date_to,
+        client_id=client_id,
+    )
+    return Response(
+        content=csv_text,
+        media_type="text/csv; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="workshift-jornadas.csv"'},
     )
 
 

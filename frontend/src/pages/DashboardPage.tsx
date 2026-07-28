@@ -4,6 +4,8 @@ import { PiCaretLeft, PiCaretRight } from "react-icons/pi";
 
 import { ClientEarningsBreakdown } from "../components/domain/ClientEarningsBreakdown";
 import { DrivingExtrasSummary } from "../components/domain/DrivingExtrasSummary";
+import { ActiveTimerBanner } from "../components/domain/ActiveTimerBanner";
+import { TodayReminderBanner } from "../components/domain/TodayReminderBanner";
 import { ShiftList } from "../components/domain/ShiftList";
 import { StatCard } from "../components/domain/StatCard";
 import { Button } from "../components/ui/Button";
@@ -84,6 +86,9 @@ export function DashboardPage() {
   return (
     <>
       <div className="space-y-10 pb-20">
+        <TodayReminderBanner />
+        <ActiveTimerBanner />
+
         {/* ——— 1. HOY ——— */}
         <section aria-labelledby="section-hoy" className="space-y-3" data-tour="hoy">
           <div>
@@ -174,6 +179,18 @@ export function DashboardPage() {
             </div>
           </div>
 
+          <p className="text-sm text-text-secondary">
+            Llevas{" "}
+            <span className="font-semibold tabular-nums text-text-primary">
+              {formatHours(data.month.hours)}
+            </span>
+            {" · ~"}
+            <span className="font-semibold tabular-nums text-text-primary">
+              {formatMoney(data.month.estimated_money)}
+            </span>{" "}
+            este mes
+          </p>
+
           <p className="font-mono text-xs text-text-muted sm:text-sm">
             Semana en curso ·{" "}
             <span className="tabular-nums text-text-secondary">{formatHours(data.week.hours)}</span>
@@ -220,11 +237,18 @@ export function DashboardPage() {
             {isEmpty ? (
               <EmptyState
                 title="Aún no hay jornadas"
-                description="Crea un cliente y registra tu primera jornada."
+                description="Crea un cliente y registra tu primera jornada. Tardarás menos de un minuto."
                 action={
-                  <Link to="/jornada/nueva" state={{ from: "/dashboard" }}>
-                    <Button className="w-full">+ Nueva jornada</Button>
-                  </Link>
+                  <div className="flex w-full flex-col gap-2">
+                    <Link to="/clientes/nuevo" state={{ from: "/dashboard" }}>
+                      <Button variant="secondary" className="w-full">
+                        + Nuevo cliente
+                      </Button>
+                    </Link>
+                    <Link to="/jornada/nueva" state={{ from: "/dashboard" }}>
+                      <Button className="w-full">+ Nueva jornada</Button>
+                    </Link>
+                  </div>
                 }
               />
             ) : (

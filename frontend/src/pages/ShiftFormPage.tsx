@@ -12,9 +12,13 @@ import { useUnsavedGuard } from "../hooks/useUnsavedGuard";
 import { TYPE_BODY, TYPE_DISPLAY, TYPE_EYEBROW } from "../lib/typography";
 import { createShift, getShift, updateShift } from "../services/shiftService";
 import type { ShiftInput } from "../types/api";
+import { replayLastShiftOntoToday } from "../utils/time";
 
 type LocationState = {
   preferredClientId?: number;
+  duplicateFrom?: Partial<ShiftInput>;
+  /** Keep exact start/end (cronómetro). Otherwise duplicate → hoy. */
+  keepShiftTimes?: boolean;
 };
 
 export function ShiftFormPage() {
@@ -29,15 +33,25 @@ export function ShiftFormPage() {
   const [dirty, setDirty] = useState(false);
   const [preferredClientId, setPreferredClientId] = useState<number | undefined>(undefined);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastAction, setToastAction] = useState<{ label: string; to: string } | null>(null);
 
   useUnsavedGuard(dirty);
 
   useEffect(() => {
-    const preferred = (location.state as LocationState | null)?.preferredClientId;
-    if (preferred) {
-      setPreferredClientId(preferred);
+    const state = location.state as LocationState | null;
+    if (state?.preferredClientId) {
+      setPreferredClientId(state.preferredClientId);
     }
-  }, [location.state]);
+    if (state?.duplicateFrom && !isEdit) {
+      const draft = { ...state.duplicateFrom };
+      if (!state.keepShiftTimes && draft.start_time && draft.end_time) {
+        const times = replayLastShiftOntoToday(draft.start_time, draft.end_time);
+        draft.start_time = new Date(times.start).toISOString();
+        draft.end_time = new Date(times.end).toISOString();
+      }
+      setInitial(draft);
+    }
+  }, [location.state, isEdit]);
 
   useEffect(() => {
     if (!id) return;
@@ -65,12 +79,14 @@ export function ShiftFormPage() {
     if (isEdit && id) {
       await updateShift(Number(id), data);
       setToastMessage("Jornada actualizada");
+      setToastAction({ label: "Ver historial", to: "/historial" });
     } else {
       await createShift(data);
       setToastMessage("Jornada guardada");
+      setToastAction({ label: "Ver historial", to: "/historial" });
     }
     setDirty(false);
-    window.setTimeout(() => navigate("/dashboard", { replace: true }), 450);
+    window.setTimeout(() => navigate("/dashboard", { replace: true }), 900);
   };
 
   if (clientsLoading || loadingShift) {
@@ -119,6 +135,7 @@ export function ShiftFormPage() {
               onSubmit={handleSubmit}
               onDirtyChange={setDirty}
               onRequestNewClient={openNewClient}
+              showQuickActions={!isEdit}
             />
           )}
           {clients.length === 0 ? (
@@ -132,7 +149,12 @@ export function ShiftFormPage() {
         </div>
       </div>
 
-      <Toast message={toastMessage ?? ""} visible={Boolean(toastMessage)} />
+      <Toast
+        message={toastMessage ?? ""}
+        visible={Boolean(toastMessage)}
+        actionLabel={toastAction?.label}
+        actionTo={toastAction?.to}
+      />
     </>
   );
 }

@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { IoChevronBack, IoHelpCircleOutline, IoMoonOutline, IoSunnyOutline } from "react-icons/io5";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { IoChevronBack, IoPersonCircleOutline } from "react-icons/io5";
 
 import { useAuth } from "../../hooks/useAuth";
-import { useTheme } from "../../hooks/useTheme";
 import { WORKSHIFT_TOUR_STEPS } from "../../lib/tour-steps";
-import { Button } from "../ui/Button";
 import { GuidedTour } from "../tour/GuidedTour";
 import { BottomNav } from "./BottomNav";
 import { OfflineBanner } from "./OfflineBanner";
@@ -20,18 +18,27 @@ function shouldShowBack(pathname: string): boolean {
   if (pathname.startsWith("/jornada/")) return true;
   if (pathname === "/clientes/nuevo") return true;
   if (/^\/clientes\/\d+\/editar$/.test(pathname)) return true;
+  if (pathname === "/cuenta") return true;
   return false;
+}
+
+function greetingName(user: { display_name: string | null; email: string } | null): string | null {
+  if (!user) return null;
+  const name = user.display_name?.trim();
+  if (name) return name;
+  const local = user.email.split("@")[0];
+  return local || null;
 }
 
 export function AppShell({ title, children }: AppShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { logout, user, markTourCompleted } = useAuth();
-  const { theme, toggle: toggleTheme } = useTheme();
+  const { user, markTourCompleted } = useAuth();
   const [showTour, setShowTour] = useState(false);
   const autoStartedRef = useRef(false);
 
   const showBack = shouldShowBack(location.pathname);
+  const hello = greetingName(user);
 
   const handleBack = () => {
     const from = (location.state as { from?: string } | null)?.from;
@@ -44,11 +51,6 @@ export function AppShell({ title, children }: AppShellProps) {
       return;
     }
     navigate("/dashboard", { replace: true });
-  };
-
-  const handleLogout = () => {
-    logout();
-    navigate("/", { replace: true });
   };
 
   const ensureTourPath = useCallback(
@@ -82,6 +84,15 @@ export function AppShell({ title, children }: AppShellProps) {
     return () => window.clearTimeout(timer);
   }, [user, location.pathname, navigate]);
 
+  // Open tour from Cuenta → Ver guía
+  useEffect(() => {
+    const state = location.state as { openTour?: boolean } | null;
+    if (state?.openTour) {
+      setShowTour(true);
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location.pathname, location.state, navigate]);
+
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-background pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:max-w-3xl">
       <header className="sticky top-0 z-10 border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur-md supports-[padding:max(0px)]:pt-[max(0.75rem,env(safe-area-inset-top))]">
@@ -97,32 +108,24 @@ export function AppShell({ title, children }: AppShellProps) {
                 <IoChevronBack className="h-6 w-6" aria-hidden />
               </button>
             ) : null}
-            <h1 className="truncate font-display text-lg font-semibold tracking-tight text-text-primary">
-              {title}
-            </h1>
+            <div className="min-w-0">
+              {hello && !showBack ? (
+                <p className="truncate font-mono text-[0.65rem] text-text-muted">Hola, {hello}</p>
+              ) : null}
+              <h1 className="truncate font-display text-lg font-semibold tracking-tight text-text-primary">
+                {title}
+              </h1>
+            </div>
           </div>
-          <div className="flex shrink-0 items-center gap-1">
-            <button
-              type="button"
-              className="flex min-h-touch min-w-touch items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary"
-              onClick={() => setShowTour(true)}
-              aria-label="Ver guía"
-              title="Ver guía"
-            >
-              <IoHelpCircleOutline className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              className="flex min-h-touch min-w-touch items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary"
-              onClick={() => toggleTheme()}
-              aria-label={theme === "dark" ? "Modo claro" : "Modo oscuro"}
-            >
-              {theme === "dark" ? <IoSunnyOutline className="h-5 w-5" /> : <IoMoonOutline className="h-5 w-5" />}
-            </button>
-            <Button variant="ghost" type="button" onClick={handleLogout} className="min-h-touch px-2 text-sm">
-              Salir
-            </Button>
-          </div>
+          <Link
+            to="/cuenta"
+            state={{ from: location.pathname }}
+            className="flex min-h-touch min-w-touch items-center justify-center rounded-lg text-text-muted transition-colors hover:bg-surface-elevated hover:text-text-primary"
+            aria-label="Cuenta"
+            title="Cuenta"
+          >
+            <IoPersonCircleOutline className="h-6 w-6" />
+          </Link>
         </div>
       </header>
       <OfflineBanner />
